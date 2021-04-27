@@ -33,7 +33,7 @@ public interface BrokerageService {
     public String sell(TransactionParam param);
 
     /**
-     * 测单
+     * 撤单
      * @param applyCode
      * @return
      */
