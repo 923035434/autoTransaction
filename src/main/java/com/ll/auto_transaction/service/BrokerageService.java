@@ -49,13 +49,27 @@ public interface BrokerageService {
     /**
      * 查看委托
      */
-    public List<ApplyDataInfo> GetOrdersData(LocalDate startTime,LocalDate endTime);
+    public List<ApplyDataInfo> getOrdersData(LocalDate startTime,LocalDate endTime);
 
 
     /**
      * 查询历史成交记录
      */
-    public List<DealInfo>  GetHisDealData(LocalDate startTime, LocalDate endTime);
+    public List<DealInfo>  getHisDealData(LocalDate startTime, LocalDate endTime);
+
+
+    /**
+     * 查看今日的委托
+     * @return
+     */
+    public List<ApplyDataInfo> getTodayOrdersData();
+
+
+    /**
+     * 查看今日成交记录
+     * @return
+     */
+    public List<DealInfo> getTodayHisDealData();
 
 
 }

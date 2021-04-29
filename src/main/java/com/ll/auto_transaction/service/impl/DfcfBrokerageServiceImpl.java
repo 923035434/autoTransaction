@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 @Service
 public class DfcfBrokerageServiceImpl implements BrokerageService {
 
@@ -56,8 +57,10 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
      */
     private JSONObject queryAssetAndPositionV1(){
         var headers = this.getRequestHeader();
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(null, headers);
-        var url = this.urlAddValidateCode("https://jywg.18.cn/Com/queryAssetAndPositionV1");
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("moneyType","RMB");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Com/queryAssetAndPositionV1");
         ResponseEntity<String> response = restTemplate.postForEntity(
                 url,
                 request, String.class);
@@ -92,7 +95,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
         map.add("tradeType","B");
         map.add("zqmc",param.getName());
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        var url = this.urlAddValidateCode("https://jywg.18.cn/Trade/SubmitTradeV2");
+        var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Trade/SubmitTradeV2");
         ResponseEntity<String> response = restTemplate.postForEntity(
                 url,
                 request, String.class);
@@ -118,7 +121,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
         map.add("zqmc",param.getName());
         map.add("gddm","A249723551");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        var url = this.urlAddValidateCode("https://jywg.18.cn/Trade/SubmitTradeV2");
+        var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Trade/SubmitTradeV2");
         ResponseEntity<String> response = restTemplate.postForEntity(
                 url,
                 request, String.class);
@@ -138,7 +141,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("revokes",LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_"))+applyCode);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        var url = this.urlAddValidateCode("https://jywg.18.cn/Trade/RevokeOrders");
+        var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Trade/RevokeOrders");
         ResponseEntity<String> response = restTemplate.postForEntity(
                 url,
                 request, String.class);
@@ -171,7 +174,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
     }
 
     @Override
-    public List<ApplyDataInfo> GetOrdersData(LocalDate startTime, LocalDate endTime) {
+    public List<ApplyDataInfo> getOrdersData(LocalDate startTime, LocalDate endTime) {
         var result = new ArrayList<ApplyDataInfo>();
         var headers = this.getRequestHeader();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
@@ -179,7 +182,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
         map.add("et",endTime.format(dftDf));
         map.add("qqhs","20");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        var url = this.urlAddValidateCode("https://jywg.18.cn/Search/GetHisOrdersData");
+        var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Search/GetHisOrdersData");
         ResponseEntity<String> response = restTemplate.postForEntity(
                 url,
                 request, String.class);
@@ -207,7 +210,75 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
     }
 
     @Override
-    public List<DealInfo> GetHisDealData(LocalDate startTime, LocalDate endTime) {
+    public List<DealInfo> getHisDealData(LocalDate startTime, LocalDate endTime) {
         return null;
+    }
+
+    @Override
+    public List<ApplyDataInfo> getTodayOrdersData() {
+        var result = new ArrayList<ApplyDataInfo>();
+        var headers = this.getRequestHeader();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("qqhs","20");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Search/GetOrdersData");
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                url,
+                request, String.class);
+        var jsonObj = JSONObject.parseObject(response.getBody());
+        var dataArray = jsonObj.getJSONArray("Data");
+        if(dataArray!=null&&dataArray.size()>0){
+            for (var data : dataArray){
+                var dataJsonObj = JSONObject.parseObject(data.toString());
+                var item = new ApplyDataInfo();
+                item.setApplyCode(dataJsonObj.getString("Wtbh"));
+                var applyTime = LocalDateTime.of(LocalDate.parse(dataJsonObj.getString("Wtrq"),DateTimeFormatter.ofPattern("yyyyMMdd")),
+                        LocalTime.parse(dataJsonObj.getString("Wtsj").substring(0,6),DateTimeFormatter.ofPattern("HHmmss")));
+                item.setApplyTime(applyTime);
+                item.setApplyType(dataJsonObj.getString("Mmsm"));
+                item.setCode(dataJsonObj.getString("Zqdm"));
+                item.setName(dataJsonObj.getString("Zqmc"));
+                item.setPrice(dataJsonObj.getBigDecimal("Wtjg"));
+                item.setCount(dataJsonObj.getInteger("Wtsl"));
+                item.setDealCount(dataJsonObj.getInteger("Cjsl"));
+                item.setStatus(dataJsonObj.getString("Wtzt"));
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<DealInfo> getTodayHisDealData() {
+        var result = new ArrayList<DealInfo>();
+        var headers = this.getRequestHeader();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("qqhs","20");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Search/GetDealData");
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                url,
+                request, String.class);
+        var jsonObj = JSONObject.parseObject(response.getBody());
+        var dataArray = jsonObj.getJSONArray("Data");
+        if(dataArray!=null&&dataArray.size()>0){
+            for (var data : dataArray){
+                var dataJsonObj = JSONObject.parseObject(data.toString());
+                var item = new DealInfo();
+                item.setApplyCode(dataJsonObj.getString("Wtbh"));
+                var applyTime = LocalDateTime.of(LocalDate.parse(dataJsonObj.getString("Wtrq"),DateTimeFormatter.ofPattern("yyyyMMdd")),
+                        LocalTime.parse(dataJsonObj.getString("Wtsj").substring(0,6),DateTimeFormatter.ofPattern("HHmmss")));
+//                item.setApplyTime(applyTime);
+//                item.setApplyType(dataJsonObj.getString("Mmsm"));
+//                item.setCode(dataJsonObj.getString("Zqdm"));
+//                item.setName(dataJsonObj.getString("Zqmc"));
+//                item.setPrice(dataJsonObj.getBigDecimal("Wtjg"));
+//                item.setCount(dataJsonObj.getInteger("Wtsl"));
+//                item.setDealCount(dataJsonObj.getInteger("Cjsl"));
+//                item.setStatus(dataJsonObj.getString("Wtzt"));
+//                result.add(item);
+            }
+        }
+        return result;
     }
 }

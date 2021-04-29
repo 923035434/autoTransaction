@@ -40,34 +40,34 @@ public class DfcfServiceTest {
 
     @Test
     public void GetOrdersDataTest(){
-        var result = brokerageService.GetOrdersData(LocalDate.of(2021,4,7),LocalDate.of(2021,4,7));
+        var result = brokerageService.getOrdersData(LocalDate.of(2021,4,29),LocalDate.of(2021,4,29));
         System.out.println(result);
     }
 
 
     @Test
     public void buyTest(){
-        var param = new TransactionParam(){{
-           setCode("600703");
-           setName("三安光电");
-           setCount(BigDecimal.valueOf(100));
-           setPrice(BigDecimal.valueOf(20.00));
-        }};
-        var result = brokerageService.buy(param);
-        System.out.println(result);
+//        var param = new TransactionParam(){{
+//           setCode("600703");
+//           setName("三安光电");
+//           setCount(BigDecimal.valueOf(100));
+//           setPrice(BigDecimal.valueOf(20.00));
+//        }};
+//        var result = brokerageService.buy(param);
+//        System.out.println(result);
     }
 
 
     @Test
     public void SellTest(){
-        var param = new TransactionParam(){{
-            setCode("600703");
-            setName("三安光电");
-            setCount(BigDecimal.valueOf(100));
-            setPrice(BigDecimal.valueOf(29.00));
-        }};
-        var result = brokerageService.sell(param);
-        System.out.println(result);
+//        var param = new TransactionParam(){{
+//            setCode("600703");
+//            setName("三安光电");
+//            setCount(BigDecimal.valueOf(100));
+//            setPrice(BigDecimal.valueOf(29.00));
+//        }};
+//        var result = brokerageService.sell(param);
+//        System.out.println(result);
     }
 
 
@@ -83,6 +83,13 @@ public class DfcfServiceTest {
     public void demoTest(){
         var time = LocalTime.of(9,30);
         System.out.println(time.isAfter(LocalTime.of(9,20,0))&&time.isBefore(LocalTime.of(9,30,0)));
+    }
+
+
+    @Test
+    public void getTodayOrdersDataTest(){
+        var result = brokerageService.getTodayOrdersData();
+        System.out.println(result);
     }
 
 
