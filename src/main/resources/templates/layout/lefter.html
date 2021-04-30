@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<!-- 侧边栏 -->
+<div th:fragment="left_sidebar" class="layui-side">
+    <div class="layui-side-scroll">
+        <ul id="sidebar-menu" class="layui-nav layui-nav-tree arrow2" nav-id="xt1" lay-filter="admin-side-nav"
+            lay-shrink="all" style="margin: 15px 0;">
+            <li class="layui-nav-item layui-nav-itemed" id="platformUserPart" style="display: none;"><a><i
+                    class="layui-icon layui-icon layui-icon-username"></i>&emsp;<cite>用户管理</cite><span
+                    class="layui-nav-more"></span></a>
+                <dl class="layui-nav-child" style="display: block;">
+                    <dd>
+                        <a lay-href="/view/user/userList.html"><i class="layui-icon layui-icon layui-icon-username"></i>&emsp;<cite>用户列表</cite></a>
+                    </dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item layui-nav-itemed"><a><i
+                    class="layui-icon layui-icon layui-icon-user"></i>&emsp;<cite>会员管理</cite><span
+                    class="layui-nav-more"></span></a>
+                <dl class="layui-nav-child" style="display: block;">
+                    <dd>
+                        <a lay-href="/view/member/memberList.html"><i class="layui-icon layui-icon layui-icon-user"></i>&emsp;<cite>会员列表</cite></a>
+                    </dd>
+                    <dd>
+                        <a lay-href="/view/member/checkError.html"><i class="layui-icon layui-icon layui-icon-tabs"></i>&emsp;<cite>检测异常列表</cite></a>
+                    </dd>
+                    <dd>
+                        <a lay-href="/view/member/caseHandle.html"><i class="layui-icon layui-icon layui-icon-form"></i>&emsp;<cite>病历列表</cite></a>
+                    </dd>
+                    <dd>
+                        <a lay-href="/view/member/consult.html"><i class="layui-icon layui-icon layui-icon-reply-fill"></i>&emsp;<cite>留言咨询</cite></a>
+                    </dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+</div>
+</html>

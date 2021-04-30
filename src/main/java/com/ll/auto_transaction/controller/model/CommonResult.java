@@ -27,6 +27,11 @@ public class CommonResult<T> {
     }
 
 
+    public CommonResult(T data,HttpStatus errorCode) {
+        this.errorCode = errorCode;
+        this.data = data;
+    }
+
 
     public CommonResult(T data, HttpStatus errorCode, String errorMessage) {
         this.data = data;
@@ -45,6 +50,16 @@ public class CommonResult<T> {
 
     public static <T> CommonResult<T> success(T data) {
         return new CommonResult<>(data);
+    }
+
+
+    public static <T> CommonResult<T> error(T data) {
+        return new CommonResult<>(data,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    public static <T> CommonResult<T> error(HttpStatus errorCode,T data) {
+        return new CommonResult<>(data,errorCode);
     }
 
 }

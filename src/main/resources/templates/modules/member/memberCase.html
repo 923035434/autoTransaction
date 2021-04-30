@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/links :: common_header(~{::title},~{::style},~{})">
+    <title>会员病历</title>
+    <style>
+
+        .layui-card {
+            padding: 10px 0;
+        }
+
+        #dataForm {
+            width: 620px;
+        }
+
+        .save-btn {
+            margin-right: 13px;
+            margin-top: 10px;
+        }
+
+        .layui-carousel {
+            width: 500px;
+            height: 710px;
+        }
+
+        .case-img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .layui-card .layui-form-item {
+            margin-bottom: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div id="case-body" class="layui-card" style="min-height: 720px;min-width: 1140px;overflow-x: auto;">
+
+        <div class="layui-form-item pull-left" style="width: 510px">
+            <div class="layui-inline">
+                <div class="layui-input-block" style="margin-left: 10px;">
+                    <div class="layui-carousel" id="case-carousel">
+                        <div id="carouselItem" carousel-item=""></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="dataForm" lay-filter="dataForm" class="layui-form pull-left" style="width: 620px">
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">手机号码:</label>
+                    <div class="layui-input-block notLine">
+                        <input name="userMobile" type="text" class="layui-input"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">会员姓名:</label>
+                    <div class="layui-input-block notLine">
+                        <input name="userName" type="text" class="layui-input"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">病历类型:</label>
+                    <div class="layui-input-block notLine">
+                        <input name="caseTypeTxt" type="text" class="layui-input"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">上传时间:</label>
+                    <div class="layui-input-block notLine">
+                        <input name="createTime" type="text" class="layui-input"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item hide handled-part">
+                <div class="layui-inline">
+                    <label class="layui-form-label">处理人:</label>
+                    <div class="layui-input-block notLine">
+                        <input name="handleUser" type="text" class="layui-input"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item hide handled-part">
+                <div class="layui-inline">
+                    <label class="layui-form-label">处理时间:</label>
+                    <div class="layui-input-block notLine">
+                        <input name="handleTime" type="text" class="layui-input"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label layui-form-required">处理建议:</label>
+                <div class="layui-input-block" style="width: 500px;">
+                <textarea name="handleAdvise" placeholder="请输入处理建议" class="layui-textarea" maxlength="1000"
+                          lay-verType="tips" lay-verify="required" required style="height: 150px;"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <button type="button" class="layui-btn save-btn pull-right hide" lay-filter="saveBtn" lay-submit>提交
+                </button>
+                <button id="addService" type="button" class="layui-btn save-btn pull-right hide">服务登记</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script type="text/html" id="modelService">
+    <form id="serviceForm" lay-filter="serviceForm" class="layui-form model-form">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-required">服务方式:</label>
+                <div class="layui-input-block">
+                    <select name="serviceWay" lay-filter="serviceWay" lay-verType="tips" lay-verify="required"
+                            required>
+                        <option value="1" selected>电话</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-required">服务类型:</label>
+                <div class="layui-input-block">
+                    <select name="serviceType" lay-filter="serviceType" lay-verType="tips" lay-verify="required"
+                            required>
+                        <option value="" selected>请选择服务类型</option>
+                        <option value="1">咨询</option>
+                        <option value="2">用药指导</option>
+                        <option value="3">复购提醒</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">服务内容</label>
+            <div class="layui-input-block">
+                <textarea name="content" placeholder="请输入服务内容" class="layui-textarea" maxlength="1000"
+                          lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="serviceSaveBtn" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">取消</button>
+        </div>
+    </form>
+</script>
+
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: jquery"></div>
+
+<script th:inline="javascript">
+    layui.use(['layer', 'form', 'table', 'admin', 'index', 'carousel'], function () {
+        var form = layui.form;
+        var element = layui.element;
+        var util = layui.util;
+        var admin = layui.admin;
+        var carousel = layui.carousel;
+        var id = window.GetQueryStringValue("id");
+        var userId;
+
+        $(window).resize(function () {
+            $("#case-body").height(layui.$(window).height() - 60);
+        });
+
+        $("#case-body").height(layui.$(window).height() - 60);
+
+
+        getCaseRecord();
+
+        function getCaseRecord() {
+            $.get({
+                url: '/caseRecord/getCaseRecord?id=' + id,
+                success: function (res) {
+                    if (res.success && res.data != null) {
+                        if (res.data.handleUserId != null) {
+                            $(".handled-part").removeClass('hide');
+                            $("#dataForm input,textarea").attr("readonly", "true").attr("disabled", "true");
+                            $("#dataForm .layui-form-label").removeClass('layui-form-required');
+                        } else {
+                            $(".save-btn").removeClass("hide");
+                        }
+                        switch (res.data.caseType) {
+                            case 1:
+                                res.data.caseTypeTxt = "病历";
+                                break;
+                            case 2:
+                                res.data.caseTypeTxt = "体检报告";
+                                break;
+                            case 3:
+                                res.data.caseTypeTxt = "检查记录";
+                                break;
+                            default:
+                                res.data.caseTypeTxt = "";
+                                break;
+                        }
+                        // 回显表单数据
+                        form.val('dataForm', res.data);
+                        userId = res.data.userId;
+                        $("input[name='userName']").val(res.data.userName);
+                        $("input[name='userMobile']").val(res.data.userMobile);
+                        $("input[name='caseTypeTxt']").val(res.data.caseTypeTxt);
+                        $("input[name='createTime']").val(util.toDateString(res.data.createTime));
+                        var picData = [];
+                        res.data.casePic.split(',').forEach(function (val, index) {
+                            if (val != '') {
+                                $('#carouselItem').append('<img class="case-img pointer" src="' + val + '" index="' + index + '">');
+                                picData.push({src: val});
+                            }
+                        })
+                        carousel.render({
+                            elem: '#case-carousel',
+                            autoplay: false,
+                            width: 500,
+                            height: 710
+                        });
+                        $('.case-img').click(function () {
+                            layer.photos({
+                                photos: {data: picData, start: $(this).attr("index")}
+                            });
+                        })
+                    }
+                }
+            })
+        }
+
+        form.on('submit(saveBtn)', function (data) {
+            data.field.id = id;
+            $.post({
+                url: '/caseRecord/handleCaseRecord',
+                data: JSON.stringify(data.field),
+                async: false,
+                contentType: 'application/json',
+                success: function (res) {
+                    if (res.success) {
+                        layer.msg(res.data, {icon: 1});
+                    } else {
+                        errorMsg(res.errorMessage);
+                    }
+                    setTimeout(function () {
+                        var selectId = $(parent.document).find(".layui-tab-title .layui-this").attr("lay-id");
+                        $(parent.document).find("iframe[lay-id='" + selectId + "']").attr("src", selectId);
+                    }, 1500);
+                }
+            });
+            return false;
+        })
+
+        $("#addService").click(function () {
+            admin.open({
+                type: 1,
+                area: '640px',
+                title: '服务登记',
+                content: $('#modelService').html(),
+                success: function (layero, dIndex) {
+                    form.val('serviceForm', {});
+                    // 表单提交事件
+                    form.on('submit(serviceSaveBtn)', function (data) {
+                        data.field.userId = userId;
+                        $.post({
+                            url: '/serviceRecord/addOrUpdate',
+                            data: JSON.stringify(data.field),
+                            async: false,
+                            contentType: 'application/json',
+                            success: function (res) {
+                                if (res.success) {
+                                    layer.close(dIndex);
+                                    layer.msg(res.data, {icon: 1});
+                                } else {
+                                    errorMsg(res.errorMessage);
+                                }
+                            }
+                        });
+                        return false;
+                    })
+                    $(layero).children('.layui-layer-content').css('overflow', 'visible');
+                }
+            });
+        })
+
+    });
+</script>
+</body>
+</html>

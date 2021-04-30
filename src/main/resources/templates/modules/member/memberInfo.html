@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/links :: common_header(~{::title},~{::style},~{})">
+    <title>会员档案</title>
+    <style>
+
+        #dataForm {
+            padding: 10px 0;
+        }
+
+        #serviceForm {
+            padding-top: 10px;
+        }
+
+        .layui-form-label {
+            white-space: nowrap;
+        }
+
+        .layui-colla-item {
+            background-color: white;
+        }
+
+        .tab-part {
+            margin-top: 0px;
+            background-color: white;
+        }
+
+        .layui-carousel {
+            width: 500px;
+            height: 710px;
+        }
+
+        .case-img {
+            width: 100%;
+            height: 100%;
+        }
+
+        #dataForm .layui-form-item, .has-handle {
+            margin-bottom: 2px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 10px 0;
+        }
+
+        .red-word {
+            color: red;
+        }
+
+        .red-word .layui-icon-tabs, .messge-icon {
+            cursor: pointer;
+            padding-left: 10px;
+        }
+
+        #selectForm {
+            margin-left: 10px;
+        }
+
+        .select-span {
+            float: left;
+            line-height: 36px;
+        }
+
+        .select-days {
+            margin-left: 10px;
+        }
+
+        .noCheck-chart {
+            padding: 175px;
+            color: #999;
+        }
+
+        #chartDiv {
+            height: 100%;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="layui-fluid" style="min-width: 1000px;overflow-x: auto;">
+    <div class="layui-card">
+        <div class="layui-colla-item">
+            <form id="dataForm" lay-filter="dataForm" class="layui-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">会员ID:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="id" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">姓名:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="realName" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">手机号码:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="mobile" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">性别:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="genderTxt" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">出生日期:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="birthday" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">身份证号码:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="idCard" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">身高:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="height" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">体重:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="weight" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">BMI:</label>
+                        <div class="layui-input-inline notLine">
+                            <input name="bmi" type="text" class="layui-input"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="layui-tab layui-tab-brief tab-part" lay-filter="tabMain">
+            <ul class="layui-tab-title">
+                <li class="layui-this">日常数据</li>
+                <li>已绑定设备</li>
+                <li>病历</li>
+                <li>服务记录</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <div class="layui-form-item">
+                        <form id="selectForm" lay-filter="selectForm" class="layui-form">
+                            <span class="select-span">最近</span>
+                            <div class="layui-input-inline select-days" style="width: 60px;">
+                                <select name="check-limit" lay-filter="checkLimit">
+                                    <option value="5" selected>5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                            <span class="select-span">次数据</span>
+                        </form>
+                    </div>
+                    <div class="layui-row layui-col-space15">
+                        <div class="layui-col-md5" style="min-width: 560px">
+                            <table id="checkTable" lay-filter="checkTable"></table>
+                        </div>
+                        <div class="layui-col-md6" style="min-width: 500px;height: 480px;">
+                            <div class="noCheck-chart hide"><span>暂无数据</span></div>
+                            <div id="chartDiv"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="layui-tab-item">
+                    <div class="layui-form-item">
+                        <table id="deviceTable" lay-filter="deviceTable"></table>
+                    </div>
+                </div>
+
+                <div class="layui-tab-item">
+                    <div class="no-data hide">暂无数据</div>
+                    <div class="layui-form-item case-data">
+                        <div class="layui-input-inline" style="width: 280px;">
+                            <div id="caseSelect" class="ew-xmselect-tree"></div>
+                        </div>
+                        <div class="layui-input-inline case-data">
+                            <label class="layui-form-label">
+                                病历类型:
+                                <span id="caseTypeTxt"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-form-item pull-left" id="carouselItems" style="width: 520px;"></div>
+                        <div class="pull-left">
+                            <div class="case-check hide" style="padding-left: 70px;">
+                                <div>
+                                    <p>
+                                        <span>处理人:</span>
+                                        <span id="handleUser"></span>
+                                        <span style="margin-left: 30px;">处理时间:</span>
+                                        <span id="handleTime"></span>
+                                    </p>
+                                    <p style="padding-top: 20px;">
+                                        <span>处理建议:</span>
+                                    </p>
+                                </div>
+                                <div class="layui-layer layui-layer-tips" type="tips" contype="object"
+                                     style=" position: inherit;padding-left: 75px;margin-top: -20px;max-width: 400px;">
+                                    <div class="layui-layer-content" style="background-color:grey;">
+                                        <span id="handleAdvise"></span>
+                                        <i class="layui-layer-TipsG layui-layer-TipsR"
+                                           style="border-left-color: transparent;border-bottom-color: gray;"></i></div>
+                                </div>
+                            </div>
+                            <div class="case-noCheck hide" style="padding: 140px;color: #999">
+                                暂未处理
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="layui-tab-item">
+                    <div class="layui-form-item">
+                        <table id="serviceTable" lay-filter="serviceTable"></table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/html" id="modelService">
+    <form id="serviceForm" lay-filter="serviceForm" class="layui-form model-form">
+        <input name="id" type="hidden">
+        <div class="layui-form-item hide has-handle">
+            <div class="layui-inline serviceWay">
+                <label class="layui-form-label">服务方式:</label>
+                <div class="layui-input-block notLine">
+                    <input name="serviceWayTxt" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">服务类型:</label>
+                <div class="layui-input-block notLine">
+                    <input name="serviceTypeTxt" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">创建时间:</label>
+                <div class="layui-input-block notLine">
+                    <input name="createTime" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline handleUser">
+                <label class="layui-form-label">服务人员:</label>
+                <div class="layui-input-block notLine">
+                    <input name="handleUser" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item add-item">
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-required">服务方式:</label>
+                <div class="layui-input-block">
+                    <select name="serviceWay" lay-filter="serviceWay" lay-verType="tips" lay-verify="required"
+                            required>
+                        <option value="1" selected>电话</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline serviceType">
+                <label class="layui-form-label layui-form-required">服务类型:</label>
+                <div class="layui-input-block">
+                    <select name="serviceType" lay-filter="serviceType" lay-verType="tips" lay-verify="required"
+                            required>
+                        <option value="" selected>请选择服务类型</option>
+                        <option value="1">咨询</option>
+                        <option value="2">用药指导</option>
+                        <option value="3">复购提醒</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item content">
+            <label class="layui-form-label layui-form-required">服务内容:</label>
+            <div class="layui-input-block">
+                <textarea name="content" placeholder="请输入服务内容" class="layui-textarea" maxlength="1000"
+                          lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="serviceSaveBtn" lay-submit id="serviceSaveBtn">保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">取消</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-container">
+        <span class="layui-btn layui-btn-sm layui-btn-primary" lay-event="add">
+            <i class="layui-icon">&#xe654;</i>服务登记</span>
+    </div>
+</script>
+
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-xs {{d.handleUserId==null?'layui-btn-normal':'layui-btn-primary'}}" lay-event="edit">{{d.handleUserId==null?'处理':'查看'}}</a>
+</script>
+
+
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: echarts"></div>
+<div th:replace="common/scripts :: jquery"></div>
+
+<script th:inline="javascript">
+    layui.use(['layer', 'form', 'admin', 'table', 'index', 'xmSelect', 'carousel'], function () {
+        var form = layui.form;
+        var element = layui.element;
+        var util = layui.util;
+        var table = layui.table;
+        var admin = layui.admin;
+        var xmSelect = layui.xmSelect;
+        var carousel = layui.carousel;
+        var caseSelect;
+        var id = window.GetQueryStringValue("id");
+        var selectCase = 0;
+        var caseData;
+        var caseCarousel;
+        var checkLimit = 5;
+
+        // 渲染周签到图表
+        var myCharts2 = echarts.init(document.getElementById('chartDiv'));
+
+        // 窗口大小改变事件
+        $(window).resize(function () {
+            myCharts2.resize();
+        });
+
+        $(".layui-tab-title li", parent.document).click(function () {
+            if ($(this).attr("lay-id").indexOf("memberInfo") != -1 && $(this).attr("lay-id").indexOf(id) != -1) {
+                //切换Tab时如果图表的宽度为默认100时，重新设置图表大
+                if ($("#chartDiv").children().first().width() == 100) {
+                    setTimeout(function () {
+                        myCharts2.resize();
+                    }, 1);
+                }
+                table.resize("serviceTable");
+                table.resize("deviceTable");
+            }
+        })
+
+        getMemberUser();
+
+        function getMemberUser() {
+            $.get({
+                url: '/memberUser/getMemberUser',
+                data: {id: id},
+                success: function (res) {
+                    if (res.success && res.data != null) {
+                        res.data.genderTxt = res.data.gender == 0 ? "男" : (res.data.gender == 1 ? "女" : "");
+                        res.data.createTime = util.toDateString(res.data.createTime);
+                        res.data.height = res.data.height != null ? res.data.height + ' CM' : '';
+                        res.data.weight = res.data.weight != null ? res.data.weight + ' KG' : '';
+                        // 回显表单数据
+                        form.val('dataForm', res.data);
+                        $("#dataForm input").attr("readonly", "true");
+                    }
+                }
+            })
+        }
+
+        var checkTb;
+
+        loadCheckData(checkLimit);
+
+        function loadEChart(data) {
+            var xData = [];
+            var yData = [];
+            var error = [];
+            data = data.reverse();
+            data.forEach(function (val, index) {
+                xData.push(util.toDateString(val.checkTime, "MM-dd"));
+                var y = val.checkValue;
+                yData.push({value: y, date: val.checkTime});
+                if (val.isUnusual) {
+                    error.push({
+                        coord: [index, y],
+                    });
+                }
+            })
+            var options2 = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        lineStyle: {
+                            color: '#E0E0E0'
+                        },
+                    },
+                    formatter: function (params) {
+                        var str = params[0].data.date + "<br />";
+                        str += '<span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;left:5px;background-color:' + params[0].color + '"></span>' + params[0].seriesName + " : " + params[0].data.value + "<br />";
+                        return str;
+                    },
+                },
+                color: ['#1890ff'],
+                grid: {
+                    top: '30px',
+                    left: '40px',
+                    right: '45px',
+                    bottom: '30px'
+                },
+                xAxis: {
+                    name: '日期',
+                    nameTextStyle: {
+                        color: '#595959'
+                    },
+                    type: 'category',
+                    data: xData,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#E0E0E0'
+                        },
+                        symbol: ['none', 'arrow'],
+                        symbolOffset: [0, 10]
+                    },
+                    axisLabel: {
+                        color: '#8c8c8c'
+                    },
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                },
+                yAxis: {
+                    name: '检测数值',
+                    nameTextStyle: {
+                        color: '#595959'
+                    },
+                    type: 'value',
+                    scale: true,
+                    min: 0,
+                    max: 1000,
+                    axisTick: {
+                        show: false
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#E0E0E0'
+                        },
+                        symbol: ['none', 'arrow'],
+                        symbolOffset: [0, 10]
+                    },
+                    axisLabel: {
+                        color: '#8c8c8c'
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    splitArea: {
+                        show: false
+                    },
+                    minInterval: 1
+                },
+                series: [
+                    {
+                        name: '检测数值',
+                        type: 'line',
+                        stack: 'one',
+                        smooth: true,
+                        markPoint: {
+                            symbol: 'circle',
+                            symbolSize: 10,
+                            itemStyle: {
+                                color: '#ff2b18',
+                                borderColor: '#1890ff',
+                                borderWidth: 1
+                            },
+                            label: {
+                                show: false
+                            },
+                            data: error
+                        },
+                        data: yData
+                    }
+                ]
+            };
+            myCharts2.setOption(options2);
+        }
+
+        function loadCheckData(limit) {
+            checkTb = table.render({
+                elem: '#checkTable',
+                width: 555,
+                height: 450,
+                limit: limit,
+                method: "POST",
+                url: '/checkRecord/listCheckRecordByUserId',
+                where: {userId: id},
+                cols: [
+                    [
+                        {
+                            field: 'checkTime', title: '检测时间', templet: function (d) {
+                                return d.checkTime == null ? "" : util.toDateString(d.checkTime);
+                            }, sort: true, width: 170
+                        },
+                        {
+                            field: 'checkValue', title: '检测数值', templet: function (d) {
+                                if (d.isUnusual) {
+                                    return '<span class="red-word">' + d.checkValue
+                                        + (d.handleUserId != null ? '<i id="error-' + d.id + '" class="error-icon layui-icon layui-icon layui-icon-tabs" check-advise="' + d.handleAdvise + '"></i>' : '')
+                                        + '</span>';
+                                } else {
+                                    return d.checkValue;
+                                }
+                            }, width: 115, align: 'center'
+                        },
+                        {
+                            field: 'createTime', title: '录入时间', templet: function (d) {
+                                return d.createTime == null ? "" : util.toDateString(d.createTime);
+                            }, sort: true, width: 170
+                        },
+                        {
+                            field: 'recordType', title: '录入方式', templet: function (d) {
+                                switch (d.recordType) {
+                                    case 0:
+                                        return "设备录入";
+                                    case 1:
+                                        return "手工录入";
+                                    default:
+                                        return "";
+                                }
+                            }, width: 95
+                        },
+                    ]
+                ],
+                loading: false,
+                page: false,
+                parseData: function (res) { //res 即为原始返回的数据
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.errorMessage, //解析提示文本
+                        "count": res.data.total, //解析数据长度
+                        "data": res.data.records //解析数据列表
+                    };
+                },
+                afterSuccess: function (res) {
+                    if (res.data.length > 0) {
+                        $('.error-icon').mouseover(function () {
+                            layer.tips($(this).attr('check-advise'), '#' + $(this).attr('id'));
+                        })
+                        loadEChart(res.data);
+                    } else {
+                        $("#chartDiv").addClass('hide');
+                        $(".noCheck-chart").removeClass('hide');
+                    }
+                }
+            });
+        }
+
+        $('select[name="check-limit"]').on('change', function () {
+            if (this.value != checkLimit) {
+                checkLimit = this.value;
+                loadCheckData(checkLimit);
+            }
+        });
+
+        var deviceTb = table.render({
+            id: "deviceTable",
+            elem: '#deviceTable',
+            cellMinWidth: 100,
+            height: "full-270",
+            method: "POST",
+            url: '/smartDevice/listSmartDeviceByUserId',
+            where: {userId: id},
+            cols: [
+                [
+                    {field: 'deviceId', title: '设备ID', width: 250},
+                    {field: 'deviceName', title: '设备名称', width: 250},
+                    {
+                        field: 'createTime', title: '绑定时间', templet: function (d) {
+                            return d.createTime == null ? "" : util.toDateString(d.createTime);
+                        }, sort: true, minWidth: 160
+                    },
+                ]
+            ],
+            loading: false,
+            page: true,
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.errorMessage, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                };
+            },
+        });
+
+        var serviceTb = table.render({
+            id: "serviceTable",
+            elem: '#serviceTable',
+            cellMinWidth: 100,
+            height: "full-270",
+            toolbar: "#toolbar",
+            defaultToolbar: [],
+            method: "POST",
+            url: '/serviceRecord/listServiceRecordByUserId',
+            where: {userId: id},
+            cols: [
+                [
+                    {
+                        field: 'serviceWay', title: '服务方式', templet: function (d) {
+                            return returnServiceWayTxt(d.serviceWay);
+                        }, align: 'center', width: 100
+                    },
+                    {
+                        field: 'serviceType', title: '服务类型', templet: function (d) {
+                            if (d.serviceType == 1) {
+                                return "<span>咨询" +
+                                    (d.message ? "<i id='service-" + d.id + "' class='messge-icon layui-icon layui-icon-reply-fill'></i>" : "") + "</span>";
+                            }
+                            return returnServiceTypeTxt(d.serviceType);
+                        }, align: 'center', width: 120
+                    },
+                    {
+                        field: 'createTime', title: '创建时间', templet: function (d) {
+                            return d.createTime == null ? "" : util.toDateString(d.createTime);
+                        }, sort: true, minWidth: 160
+                    },
+                    {field: 'handleUser', title: '服务人员', align: 'center', width: 120},
+                    {field: 'content', title: '服务内容', minWidth: 200},
+                    {title: '操作', toolbar: '#tableBar', align: 'center', width: 120, fixed: 'right'}
+                ]
+            ],
+            loading: false,
+            page: true,
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.errorMessage, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                };
+            },
+            afterSuccess: function (res) {
+                if (res.data.length > 0) {
+                    $('.messge-icon').mouseover(function () {
+                        var idStr = $(this).attr('id');
+                        var tips;
+                        res.data.forEach(function (val) {
+                            if (val.id == idStr.split('-')[1]) {
+                                tips = val.message;
+                                return;
+                            }
+                        })
+                        layer.tips(tips, '#' + $(this).attr('id'));
+                    })
+                }
+            }
+        });
+
+        table.on('toolbar(serviceTable)', function (obj) {
+            var layEvent = obj.event;
+            if (layEvent === "add") {
+                showServiceModel(null);
+            }
+        });
+
+        table.on('tool(serviceTable)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') {
+                showServiceModel(data);
+            }
+        });
+
+        function showServiceModel(data) {
+            admin.open({
+                type: 1,
+                area: '640px',
+                title: data == null ? '服务登记' : (data.handleUserId ? '查看服务记录' : '处理留言咨询'),
+                content: $('#modelService').html(),
+                success: function (layero, dIndex) {
+                    if (data == null) {
+                        $(".add-item,#serviceSaveBtn").removeClass('hide');
+                        $(".has-handle").addClass('hide');
+                        $("#serviceForm input,textarea").removeAttr("readonly").removeAttr("disabled");
+                        $(".content .layui-form-required").addClass('layui-form-required');
+                    } else {
+                        data.serviceWayTxt = returnServiceWayTxt(data.serviceWay);
+                        data.serviceTypeTxt = returnServiceTypeTxt(data.serviceType);
+                        if (data.serviceWay == null) {
+                            $(".serviceWay").addClass('hide');
+                        }
+                        $(".content .layui-form-required").addClass('layui-form-required');
+                        if (data.handleUserId) {
+                            $(".has-handle").removeClass('hide');
+                            $("#serviceForm input,textarea").attr("readonly", "true").attr("disabled", "true");
+                            $(".add-item,#serviceSaveBtn").addClass('hide');
+                            $(".content .layui-form-required").removeClass('layui-form-required');
+                        } else {
+                            $(".serviceType,.handleUser").addClass('hide');
+                            $("#serviceForm input").attr("readonly", "true").attr("disabled", "true");
+                            $(".has-handle,#serviceSaveBtn").removeClass('hide');
+                            data.serviceWay = "1";
+                        }
+                    }
+
+                    form.val('serviceForm', data == null ? {} : data);
+                    // 表单提交事件
+                    form.on('submit(serviceSaveBtn)', function (data) {
+                        data.field.userId = id;
+                        $.post({
+                            url: '/serviceRecord/addOrUpdate',
+                            data: JSON.stringify(data.field),
+                            async: false,
+                            contentType: 'application/json',
+                            success: function (res) {
+                                if (res.success) {
+                                    layer.close(dIndex);
+                                    layer.msg(res.data, {icon: 1});
+                                    serviceTb.reload();
+                                } else {
+                                    errorMsg(res.errorMessage);
+                                }
+                            }
+                        });
+                        return false;
+                    })
+                    $(layero).children('.layui-layer-content').css('overflow', 'visible');
+                }
+            });
+        }
+
+        function returnServiceWayTxt(val) {
+            var text = "";
+            switch (val) {
+                case 1:
+                    text = "电话";
+                    break;
+            }
+            return text;
+        }
+
+        function returnServiceTypeTxt(val) {
+            var text = "";
+            switch (val) {
+                case 1:
+                    text = "咨询";
+                    break;
+                case 2:
+                    text = "用药指导";
+                    break;
+                case 3:
+                    text = "复购提醒";
+                    break;
+            }
+            return text;
+        }
+
+        caseSelect = xmSelect.render({
+            el: '#caseSelect',
+            radio: true,
+            clickClose: true,
+            paging: true,
+            empty: '暂无病历数据',
+            pageSize: 10,
+            model: {
+                label: {
+                    type: 'text',
+                    text: {
+                        //左边拼接的字符
+                        left: '',
+                        //右边拼接的字符
+                        right: '',
+                        //中间的分隔符
+                        separator: ', ',
+                    },
+                }
+            },
+            pageRemote: true,
+            remoteMethod: function (val, cb, show, pageIndex) {
+                var data = {
+                    userId: id,
+                    pageQuery: {current: pageIndex, size: 10}
+                };
+                $.post({
+                    url: '/caseRecord/listCaseRecordById',
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    success: function (res) {
+                        var data = [];
+                        if (res.data.records != null) {
+                            caseData = res.data.records;
+                            if (caseData.length == 0) {
+                                $(".no-data").removeClass('hide');
+                                $(".case-data").addClass('hide');
+                            }
+                            res.data.records.forEach(function (row, i) {
+                                var isNew = i == 0 && pageIndex == 1 && selectCase == 0;
+
+                                data.push({
+                                    name: util.toDateString(row.createTime) + (i == 0 && pageIndex == 1 ? "(最新病历)" : ""),
+                                    value: row.id,
+                                    selected: isNew
+                                });
+                                if (isNew) {
+                                    $("#caseTypeTxt").text(returnCaseTypeTxt(row.caseType));
+                                    selectCase = row.id;
+                                    $("#carouselItems").html('');
+                                    var picData = [];
+                                    row.casePic.split(',').forEach(function (val) {
+                                        if (val != '') {
+                                            picData.push({src: val});
+                                        }
+                                    });
+                                    renderCasePic(picData);
+                                    renderHandlePart(row);
+                                }
+                            })
+                        }
+                        cb(data, Math.ceil(res.data.total / 10));
+                    }
+                })
+            },
+            on: function (data) {
+                if (!data.isAdd && data.change.length > 0) {
+                    //延迟一毫秒setValue 达到不可取消选中的效果
+                    setTimeout(function () {
+                        caseSelect.setValue([{
+                            name: data.change[0].name,
+                            value: data.change[0].value,
+                        }])
+                    }, 1);
+                }
+                if (data.isAdd && data.change.length > 0) {
+                    if (selectCase != data.change[0].value) {
+                        selectCase = data.change[0].value;
+                        caseData.forEach(function (row) {
+                            if (row.id == data.change[0].value) {
+                                $("#caseTypeTxt").text(returnCaseTypeTxt(row.caseType));
+                                $("#carouselItems").html('');
+                                var picData = [];
+                                row.casePic.split(',').forEach(function (val) {
+                                    if (val != '') {
+                                        picData.push({src: val});
+                                    }
+                                })
+                                renderCasePic(picData);
+                                renderHandlePart(row);
+                                return false;
+                            }
+                        })
+                    }
+                }
+            }
+        })
+
+        function returnCaseTypeTxt(caseType) {
+            var caseTypeTxt = "";
+            switch (caseType) {
+                case  1:
+                    caseTypeTxt = "病历";
+                    break;
+                case  2:
+                    caseTypeTxt = "体检报告";
+                    break;
+                case  3:
+                    caseTypeTxt = "检查记录";
+                    break;
+            }
+            return caseTypeTxt;
+        }
+
+        function renderHandlePart(data) {
+            if (data.handleUserId == null) {
+                $(".case-noCheck").removeClass('hide');
+                $(".case-check").addClass('hide');
+            } else {
+                $(".case-check").removeClass('hide');
+                $(".case-noCheck").addClass('hide');
+                $("#handleUser").text(data.handleUser);
+                $("#handleTime").text(data.handleTime);
+                $("#handleAdvise").text(data.handleAdvise);
+            }
+        }
+
+        function renderCasePic(picData) {
+            var picsHtml = '';
+            picData.forEach(function (val, index) {
+                picsHtml += '<img class="case-img pointer" src="' + val.src + '" index="' + index + '">';
+            })
+            $("#carouselItems").html('<div class="layui-carousel" id="case-carousel' + selectCase + '">' +
+                '<div carousel-item="">' + picsHtml + '</div></div>');
+            caseCarousel = carousel.render({
+                elem: '#case-carousel' + selectCase,
+                autoplay: false,
+                width: 500,
+                height: 710
+            });
+            $('.case-img').click(function () {
+                layer.photos({
+                    photos: {data: picData, start: $(this).attr("index")}
+                });
+            })
+        }
+
+        element.on('tab(tabMain)', function (data) {
+            if (data.index == 0) {
+                setTimeout(function () {
+                    myCharts2.resize();
+                }, 1);
+            }
+        })
+
+    });
+
+</script>
+</body>
+</html>

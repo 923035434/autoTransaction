@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
@@ -40,18 +41,17 @@ public class DefaultWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers("/auth/**").permitAll()
-                // .antMatchers(securityProperties.getLogoutUrl()).permitAll()
-                .anyRequest().authenticated()
-                .and()
+        ((((HttpSecurity) ((ExpressionUrlAuthorizationConfigurer.AuthorizedUrl) ((ExpressionUrlAuthorizationConfigurer.AuthorizedUrl)
+                http.exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPoint("/login")).and()
+                        .authorizeRequests().antMatchers(new String[]{"/auth/**","/login","/assets/**"}))
+                .permitAll().anyRequest()).authenticated().and())
+                .headers().frameOptions().disable().and()
                 .formLogin()
-                .disable()
-                .cors().and()
-                .httpBasic().disable()
-                .sessionManagement().disable()
+                .loginPage("/login")
+                .and()
+                .cors().and().httpBasic().disable())
+                .sessionManagement().disable())
                 .csrf().disable();
-
         if (securityContextRepository != null) {
             http.securityContext().securityContextRepository(securityContextRepository);
         }

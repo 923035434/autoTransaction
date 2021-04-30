@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/links :: common_header(~{::title},~{},~{::style})">
+    <title>工作台</title>
+    <style>
+
+        .layui-timeline-dynamic .layui-timeline-item {
+            padding-bottom: 0;
+        }
+
+        .layui-timeline-dynamic .layui-timeline-item:before {
+            top: 16px;
+        }
+
+        .layui-timeline-dynamic .layui-timeline-axis {
+            width: 9px;
+            height: 9px;
+            left: 1px;
+            top: 7px;
+            background-color: #cbd0db;
+        }
+
+        .layui-timeline-dynamic {
+            height: 320px;
+            overflow-y: auto;
+        }
+
+        .console-app-group {
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .console-app-group .console-app-icon {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            margin-bottom: 6px;
+            display: inline-block;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            font-size: 26px;
+            color: #69c0ff;
+        }
+
+        .console-app-group:hover {
+            box-shadow: 0 0 15px rgba(0, 0, 0, .08);
+        }
+
+        .case-go, .consult {
+            color: #01AAED;
+            cursor: pointer;
+        }
+
+        .case-go:hover, .consult:hover {
+            border-bottom: 1px solid;
+        }
+
+        .top-part p .pull-right {
+            font-size: 20px;
+        }
+
+        .console-link-block .console-link-block-num {
+            font-size: 40px;
+            margin-bottom: 5px;
+        }
+
+        .console-link-block .console-link-block-icon {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            font-size: 50px;
+            line-height: 50px;
+            margin-top: -25px;
+            color: #FFFFFF;
+            opacity: .8;
+        }
+
+        .console-link-block .console-link-block-band {
+            color: #fff;
+            width: 106px;
+            font-size: 14px;
+            padding: 2px 0 3px 0;
+            background-color: #ff2b18;
+            line-height: inherit;
+            text-align: center;
+            position: absolute;
+            top: 12px;
+            right: -29px;
+            transform-origin: center;
+            transform: rotate(45deg) scale(.8);
+            opacity: .95;
+            z-index: 2;
+        }
+
+        .console-link-block {
+            height: 78px;
+            font-size: 16px;
+            padding: 30px 20px;
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+            display: block;
+            box-shadow: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #serviceForm {
+            padding-top: 10px;
+        }
+
+        .has-handle {
+            margin-bottom: 2px;
+        }
+
+    </style>
+</head>
+<body>
+<!-- 正文开始 -->
+<div class="layui-fluid ew-console-wrapper">
+    <div class="layui-row layui-col-space15 top-part">
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="console-link-block main-index pointer" url="/view/member/checkError.html?isHandle=0"
+                 url-title="检测异常列表">
+                <div class="console-link-block-num"><span id="unHandleCheck"></span></div>
+                <div class="console-link-block-text">检测异常</div>
+                <i class="console-link-block-icon layui-icon layui-icon-survey">0</i>
+                <div class="console-link-block-band">待处理</div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="console-link-block main-index pointer" url="/view/member/caseHandle.html?isHandle=0"
+                 url-title="病历列表">
+                <div class="console-link-block-num"><span id="unHandleCase">0</span></div>
+                <div class="console-link-block-text">病历</div>
+                <i class="console-link-block-icon layui-icon layui-icon-survey"></i>
+                <div class="console-link-block-band">待处理</div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="console-link-block main-index pointer" url="/view/member/consult.html?isHandle=0"
+                 url-title="留言咨询">
+                <div class="console-link-block-num"><span id="consultCount">0</span></div>
+                <div class="console-link-block-text">留言咨询</div>
+                <i class="console-link-block-icon layui-icon layui-icon-survey"></i>
+                <div class="console-link-block-band">待处理</div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    新增会员<span class="layui-badge layui-badge-green pull-right">日</span>
+                </div>
+                <div class="layui-card-body">
+                    <p id="todayMemberCount" class="lay-big-font">0</p>
+                    <p>总会员<span class="pull-right" id="memberCount">0</span></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="layui-row layui-col-space15">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-xs6 layui-col-sm3 quick-part">
+                <div class="console-app-group" url="/view/member/memberList.html" url-title="会员列表">
+                    <i class="console-app-icon layui-icon layui-icon-user" style="color: #95de64;"></i>
+                    <div class="console-app-name">会员</div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm3 quick-part">
+                <div class="console-app-group" url="/view/member/checkError.html" url-title="检测异常列表">
+                    <i class="console-app-icon layui-icon layui-icon-tabs" style="color: #ff9c6e;"></i>
+                    <div class="console-app-name">检测异常</div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm3 quick-part">
+                <div class="console-app-group" url="/view/member/caseHandle.html" url-title="病历列表">
+                    <i class="console-app-icon layui-icon layui-icon-form"
+                       style="color: #b37feb;font-size: 30px;"></i>
+                    <div class="console-app-name">病历</div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm3 quick-part">
+                <div class="console-app-group" url="/view/member/consult.html" url-title="留言咨询">
+                    <i class="console-app-icon layui-icon layui-icon-reply-fill"
+                       style="color: #ffd666;font-size: 30px;"></i>
+                    <div class="console-app-name">留言咨询</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6" style="min-width: 360px">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    检测异常处理动态
+                </div>
+                <div class="layui-card-body">
+                    <ul id="errorCheckList" class="layui-timeline layui-timeline-dynamic"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6" style="min-width: 360px">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    病历处理动态
+                </div>
+                <div class="layui-card-body">
+                    <ul id="caseList" class="layui-timeline layui-timeline-dynamic"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: echarts"></div>
+<script>
+    layui.use(['layer', 'table', 'index', 'form'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var util = layui.util;
+        var admin = layui.admin
+        var adminIndex = layui.index;
+
+        getData();
+
+        function getData() {
+            $.ajax({
+                type: "get",
+                url: "/platformUser/getPlatHome",
+                dataType: 'json',
+                success: function (res) {
+                    if (res.success) {
+                        $("#errorCheckList").html("");
+                        $("#caseList").html("");
+                        var indexs = Object.keys(res.data);
+                        indexs.forEach(function (i) {
+                            if (i.indexOf('List') == -1) {
+                                $("#" + i).text(res.data[i]);
+                            }
+                        })
+                        res.data.errorCheckList.forEach(function (i) {
+                            $("#errorCheckList").append('<li class="layui-timeline-item">' +
+                                '<i class="layui-icon layui-timeline-axis"></i>' +
+                                '<div class="layui-timeline-content layui-text">' +
+                                '<div class="layui-timeline-title">' + (i.handleUser) + ' 处理了检测异常<span class="pull-right">' + util.toDateString(i.handleTime) + '</span></div>' +
+                                '</div>' +
+                                '</li>');
+                        })
+                        res.data.caseList.forEach(function (i) {
+                            $("#caseList").append('<li class="layui-timeline-item">' +
+                                '<i class="layui-icon layui-timeline-axis"></i>' +
+                                '<div class="layui-timeline-content layui-text">' +
+                                '<div class="layui-timeline-title">' + (i.handleUser) + ' 处理了病历<span class="case-go" case-id="' + i.id + '">【' + i.id + '】</span></span><span class="pull-right">' + util.toDateString(i.handleTime) + '</span></div>' +
+                                '</div>' +
+                                '</li>');
+                        })
+
+                        $('.case-go').click(function () {
+                            var id = $(this).attr('case-id');
+                            adminIndex.openTab({
+                                url: '/view/member/memberCase.html?id=' + id,
+                                title: '会员病历-' + id,
+                            });
+                        })
+
+                    }
+                }
+            })
+        }
+
+        $('.main-index,.console-app-group').click(function () {
+            var tab = {
+                url: $(this).attr('url'),
+                title: $(this).attr('url-title')
+            };
+            if ($(this).attr('url').indexOf('?') != -1) {
+                tab.id = $(this).attr('url').split('?')[0];
+            }
+            adminIndex.openTab(tab);
+        })
+
+    });
+</script>
+</body>
+</html>

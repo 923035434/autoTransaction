@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/links :: common_header(~{::title},~{::style},~{})">
+    <title>病历列表</title>
+    <style>
+
+        #handleForm {
+            padding-top: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card" style="min-width: 1140px; overflow-x: auto;">
+        <div class="layui-card-body">
+            <form class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">手机号码:</label>
+                        <div class="layui-input-inline">
+                            <input name="mobile" class="layui-input" placeholder="输入手机号码"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">会员姓名:</label>
+                        <div class="layui-input-inline">
+                            <input name="userName" class="layui-input" placeholder="输入会员姓名"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">病历类型:</label>
+                        <div class="layui-input-inline">
+                            <select name="caseType" lay-search>
+                                <option value="">请选择状态</option>
+                                <option value="1">病历</option>
+                                <option value="2">体检报告</option>
+                                <option value="3">检查记录</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">状态:</label>
+                        <div class="layui-input-inline">
+                            <select name="isHandle" lay-search>
+                                <option value="">请选择状态</option>
+                                <option value="0">未处理</option>
+                                <option value="1">已处理</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">处理人:</label>
+                        <div class="layui-input-inline">
+                            <input name="handleUser" class="layui-input" placeholder="输入处理人"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">上传时间:</label>
+                        <div class="layui-input-inline">
+                            <input name="createTimeBegin" class="layui-input icon-date" placeholder="选择时间" unselectable="on" readonly/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">至:</label>
+                        <div class="layui-input-inline">
+                            <input name="createTimeEnd" class="layui-input icon-date" placeholder="选择时间" unselectable="on" readonly/>
+                        </div>
+                    </div>
+                    <div class="layui-inline searchPart">
+                        <button class="layui-btn icon-btn" lay-filter="searchBtn" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>&nbsp;
+                        <button id="resetBtn" class="layui-btn icon-btn layui-btn-primary" type="reset">
+                            <i class="layui-icon">&#xe9aa;</i>重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <table id="dataTable" lay-filter="dataTable"></table>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="modelHandle">
+    <form id="handleForm" lay-filter="handleForm" class="layui-form model-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">处理建议</label>
+            <div class="layui-input-block">
+                <textarea name="handleAdvise" placeholder="请输入处理建议" class="layui-textarea" maxlength="1000"
+                          lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="saveBtn" lay-submit id="saveBtn">保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">取消</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/html" id="modelService">
+    <form id="serviceForm" lay-filter="serviceForm" class="layui-form model-form">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-required">服务方式:</label>
+                <div class="layui-input-block">
+                    <select name="serviceWay" lay-filter="serviceWay" lay-verType="tips" lay-verify="required"
+                            required>
+                        <option value="1" selected>电话</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label layui-form-required">服务类型:</label>
+                <div class="layui-input-block">
+                    <select name="serviceType" lay-filter="serviceType" lay-verType="tips" lay-verify="required"
+                            required>
+                        <option value="" selected>请选择服务类型</option>
+                        <option value="1">咨询</option>
+                        <option value="2">用药指导</option>
+                        <option value="3">复购提醒</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">服务内容</label>
+            <div class="layui-input-block">
+                <textarea name="content" placeholder="请输入服务内容" class="layui-textarea" maxlength="1000"
+                          lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="serviceSaveBtn" lay-submit>保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">取消</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/html" id="tableBarAuth">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="handle"
+       {{d.handleUserId==null?'':'style="display:none"'}}>处理</a>
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="addService"
+       {{d.handleUserId==null?'':'style="display:none"'}}>服务登记</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="view">查看会员档案</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="viewCase">查看病历</a>
+</script>
+
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: jquery"></div>
+
+<script th:inline="javascript">
+    layui.use(['layer', 'form', 'admin', 'table', 'index', 'laydate'], function () {
+        var form = layui.form;
+        var table = layui.table;
+        var util = layui.util;
+        var admin = layui.admin;
+        var adminIndex = layui.index;
+        var laydate = layui.laydate;
+        var format = "yyyy-MM-dd HH:mm:ss";
+        var isHandle = window.GetQueryStringValue("isHandle");
+
+        $("select[name='isHandle']").find("option[value='" + isHandle + "']").attr("selected", true);
+        form.render("select");
+
+        var createTimeBegin = laydate.render({
+            elem: 'input[name="createTimeBegin"]',
+            type: 'datetime',
+            trigger: 'click',
+            format: format,
+            value: "",
+            btns: ['clear', 'confirm'],
+            done: function (value, date) {
+                var end = $("input[name='createTimeEnd']").val();
+                if (new Date(value.replace(/-/g, "/")).getTime() > new Date(end.replace(/-/g, "/")).getTime()) {
+                    $("input[name='createTimeEnd']").val('');
+                }
+            }
+        });
+
+        var createTimeEnd = laydate.render({
+            elem: 'input[name="createTimeEnd"]',
+            type: 'datetime',
+            trigger: 'click',
+            format: format,
+            value: '',
+            btns: ['clear', 'confirm'],
+            ready: function () {
+                $("#layui-laydate2 .layui-laydate-footer [lay-type='datetime'].laydate-btns-time").click();
+                $("#layui-laydate2 .laydate-main-list-0 .layui-laydate-content li ol li:last-child").click();
+                $("#layui-laydate2 .layui-laydate-footer [lay-type='date'].laydate-btns-time").click();
+            },
+            done: function (value, date, endDate) {
+                var begin = $("input[name='createTimeBegin']").val();
+                if (new Date(value.replace(/-/g, "/")).getTime() < new Date(begin.replace(/-/g, "/")).getTime()) {
+                    $("input[name='createTimeBegin']").val('');
+                }
+            }
+        });
+
+        $("#resetBtn").click(function () {
+            isHandle = null;
+            $("select[name='isHandle']").find("option[value!='']").removeAttr("selected");
+            $("select[name='isHandle']").find("option[value='']").attr("selected", true);
+            form.render("select");
+        })
+
+        var insTb = table.render({
+            elem: '#dataTable',
+            cellMinWidth: 100,
+            height: "full-142",
+            method: "POST",
+            url: '/caseRecord/listCaseRecord',
+            where: {isHandle: isHandle},
+            cols: [
+                [
+                    {
+                        field: 'createTime', title: '数据上传时间', templet: function (d) {
+                            return d.createTime == null ? "" : util.toDateString(d.createTime);
+                        }, sort: true, minWidth: 160
+                    },
+                    {
+                        field: 'caseType', title: '病历类型', templet: function (d) {
+                            switch (d.caseType) {
+                                case 1:
+                                    return "病历";
+                                case 2:
+                                    return "体检报告";
+                                case 3:
+                                    return "检查记录";
+                                default:
+                                    return "";
+                            }
+                        }, align: 'center', width: 110
+                    },
+                    {
+                        field: 'casePic', title: '病历图片', templet: function (d) {
+                            var pic = d.casePic.split(',')[0];
+                            return pic ? '<p><img class="list-img pointer" id="' + d.id + '" data="' + d.casePic + '" style="width: 30px;height: 30px" src=' + pic + '></img></p>' : "";
+                        }, align: 'center', width: 100
+                    },
+                    {field: 'userId', title: '会员ID', width: 80},
+                    {field: 'userMobile', title: '手机号码', width: 130},
+                    {field: 'userName', title: '会员姓名', width: 130},
+                    {
+                        field: 'handleStatus', title: '状态', templet: function (d) {
+                            return d.handleUserId == null ? '<span class="layui-badge layui-badge-gray">未处理</span>' :
+                                '<span class="layui-badge layui-badge-green handlePart" id="case-' + d.id + '" case-advise="' + d.handleAdvise + '">已处理</span>';
+                        }, width: 100, align: 'center'
+                    },
+                    {
+                        field: 'handleUser', title: '处理人', templet: function (d) {
+                            return d.handleUser == null ? "--" : d.handleUser;
+                        }, width: 100
+                    },
+                    {
+                        field: 'handleTime', title: '处理时间', templet: function (d) {
+                            return d.handleTime == null ? "--" : util.toDateString(d.handleTime);
+                        }, minWidth: 160
+                    },
+                    {title: '操作', toolbar: '#tableBarAuth', align: 'center', width: 320, fixed: 'right'}
+                ]
+            ],
+            loading: false,
+            page: true,
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.errorMessage, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                };
+            },
+            afterSuccess: function () {
+                $(".handlePart").mouseover(function () {
+                    layer.tips($(this).attr('case-advise'), '#' + $(this).attr('id'));
+                })
+                $(".list-img").click(function () {
+                    var imgSrcs = $(this).attr('data');
+                    var picData = [];
+                    imgSrcs.split(',').forEach(function (val) {
+                        if (val != '') {
+                            picData.push({src: val});
+                        }
+                    })
+                    layer.photos({
+                        photos: {data: picData}
+                    });
+                })
+            }
+        });
+
+        form.on('submit(searchBtn)', function (data) {
+            for (var f in data.field) {
+                data.field[f] = $.trim(data.field[f]);
+            }
+            insTb.reload({where: data.field, page: {curr: 1}});
+            return false;
+        });
+
+        table.on('tool(dataTable)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'view') {
+                adminIndex.openTab({
+                    url: "/view/member/memberInfo.html?id=" + data.userId,
+                    title: "会员档案-" + data.userId,
+                    refresh: true
+                });
+            } else if (layEvent === 'viewCase') {
+                adminIndex.openTab({
+                    url: "/view/member/memberCase.html?id=" + data.id,
+                    title: "会员病历-" + data.id,
+                });
+            } else if (layEvent === 'handle') {
+                showHandleModel(data);
+            } else if (layEvent === 'addService') {
+                showServiceModel(data.userId);
+            }
+        });
+
+        function showServiceModel(userId) {
+            admin.open({
+                type: 1,
+                area: '640px',
+                title: '服务登记',
+                content: $('#modelService').html(),
+                success: function (layero, dIndex) {
+                    form.val('serviceForm', {});
+                    // 表单提交事件
+                    form.on('submit(serviceSaveBtn)', function (data) {
+                        data.field.userId = userId;
+                        $.post({
+                            url: '/serviceRecord/addOrUpdate',
+                            data: JSON.stringify(data.field),
+                            async: false,
+                            contentType: 'application/json',
+                            success: function (res) {
+                                if (res.success) {
+                                    layer.close(dIndex);
+                                    layer.msg(res.data, {icon: 1});
+                                } else {
+                                    errorMsg(res.errorMessage);
+                                }
+                            }
+                        });
+                        return false;
+                    })
+                    $(layero).children('.layui-layer-content').css('overflow', 'visible');
+                }
+            });
+        }
+
+        function showHandleModel(data) {
+            admin.open({
+                type: 1,
+                area: '640px',
+                title: '填写处理建议',
+                content: $('#modelHandle').html(),
+                success: function (layero, dIndex) {
+                    form.val('handleForm', data);
+                    var id = data.id;
+                    // 表单提交事件
+                    form.on('submit(saveBtn)', function (data) {
+                        data.field.id = id;
+                        $.post({
+                            url: '/caseRecord/handleCaseRecord',
+                            data: JSON.stringify(data.field),
+                            async: false,
+                            contentType: 'application/json',
+                            success: function (res) {
+                                if (res.success) {
+                                    layer.close(dIndex);
+                                    layer.msg(res.data, {icon: 1});
+                                    insTb.reload();
+                                } else {
+                                    errorMsg(res.errorMessage);
+                                }
+                            }
+                        });
+                        return false;
+                    })
+                }
+            });
+        }
+
+    });
+</script>
+</body>
+</html>

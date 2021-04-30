@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/links :: common_header(~{::title},~{::style},~{})">
+    <title>检测异常列表</title>
+    <style>
+
+        #handleForm {
+            padding-top: 15px;
+        }
+
+        #handled-part {
+            margin-bottom: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">上传时间:</label>
+                        <div class="layui-input-inline">
+                            <input name="createTimeBegin" class="layui-input icon-date" placeholder="选择时间" unselectable="on" readonly/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">至:</label>
+                        <div class="layui-input-inline">
+                            <input name="createTimeEnd" class="layui-input icon-date" placeholder="选择时间" unselectable="on" readonly/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">手机号码:</label>
+                        <div class="layui-input-inline">
+                            <input name="mobile" class="layui-input" placeholder="输入手机号码"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">会员姓名:</label>
+                        <div class="layui-input-inline">
+                            <input name="userName" class="layui-input" placeholder="输入会员姓名"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">状态:</label>
+                        <div class="layui-input-inline">
+                            <select name="isHandle" lay-search>
+                                <option value="" selected>请选择状态</option>
+                                <option value="0">未处理</option>
+                                <option value="1">已处理</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">处理人:</label>
+                        <div class="layui-input-inline">
+                            <input name="handleUser" class="layui-input" placeholder="输入处理人"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline searchPart">
+                        <button class="layui-btn icon-btn" lay-filter="searchBtn" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>&nbsp;
+                        <button id="resetBtn" class="layui-btn icon-btn layui-btn-primary" type="reset">
+                            <i class="layui-icon">&#xe9aa;</i>重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <!-- 数据表格 -->
+            <table id="dataTable" lay-filter="dataTable"></table>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="modelHandle">
+    <form id="handleForm" lay-filter="handleForm" class="layui-form model-form">
+        <div class="layui-form-item hide" id="handled-part">
+            <div class="layui-inline">
+                <label class="layui-form-label">处理人:</label>
+                <div class="layui-input-block notLine">
+                    <input name="handleUser" type="text" class="layui-input"/>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">处理时间:</label>
+                <div class="layui-input-block notLine">
+                    <input name="handleTime" type="text" class="layui-input"/>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label layui-form-required">处理建议</label>
+            <div class="layui-input-block">
+                <textarea name="handleAdvise" placeholder="请输入处理建议" class="layui-textarea" maxlength="1000"
+                          lay-verType="tips" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-form-item text-right">
+            <button class="layui-btn" lay-filter="saveBtn" lay-submit id="saveBtn">保存</button>
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closePageDialog">取消</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/html" id="tableBarAuth">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="handle"
+       {{d.handleUserId==null?'':'style="display:none"'}}>处理</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="view">查看会员档案</a>
+</script>
+
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: jquery"></div>
+<script th:inline="javascript">
+    layui.use(['layer', 'form', 'admin', 'table', 'index', 'laydate'], function () {
+        var form = layui.form;
+        var table = layui.table;
+        var admin = layui.admin;
+        var util = layui.util;
+        var adminIndex = layui.index;
+        var laydate = layui.laydate;
+        var format = "yyyy-MM-dd HH:mm:ss";
+        var isHandle = window.GetQueryStringValue("isHandle");
+
+        $("select[name='isHandle']").find("option[value='" + isHandle + "']").attr("selected", true);
+        form.render("select");
+
+        var createTimeBegin = laydate.render({
+            elem: 'input[name="createTimeBegin"]',
+            type: 'datetime',
+            trigger: 'click',
+            format: format,
+            value: "",
+            btns: ['clear', 'confirm'],
+            done: function (value, date) {
+                var end = $("input[name='createTimeEnd']").val();
+                if (new Date(value.replace(/-/g, "/")).getTime() > new Date(end.replace(/-/g, "/")).getTime()) {
+                    $("input[name='createTimeEnd']").val('');
+                }
+            }
+        });
+
+        var createTimeEnd = laydate.render({
+            elem: 'input[name="createTimeEnd"]',
+            type: 'datetime',
+            trigger: 'click',
+            format: format,
+            value: '',
+            btns: ['clear', 'confirm'],
+            ready: function () {
+                $("#layui-laydate2 .layui-laydate-footer [lay-type='datetime'].laydate-btns-time").click();
+                $("#layui-laydate2 .laydate-main-list-0 .layui-laydate-content li ol li:last-child").click();
+                $("#layui-laydate2 .layui-laydate-footer [lay-type='date'].laydate-btns-time").click();
+            },
+            done: function (value, date) {
+                var begin = $("input[name='createTimeBegin']").val();
+                if (new Date(value.replace(/-/g, "/")).getTime() < new Date(begin.replace(/-/g, "/")).getTime()) {
+                    $("input[name='createTimeBegin']").val('');
+                }
+            }
+        });
+
+        $("#resetBtn").click(function () {
+            isHandle = null;
+            $("select[name='isHandle']").find("option[value!='']").removeAttr("selected");
+            $("select[name='isHandle']").find("option[value='']").attr("selected", true);
+            form.render("select");
+        })
+
+        var insTb = table.render({
+            elem: '#dataTable',
+            cellMinWidth: 100,
+            height: "full-142",
+            method: "POST",
+            url: '/checkRecord/listErrorCheckRecord',
+            where: {isHandle: isHandle},
+            cols: [
+                [
+                    {
+                        field: 'createTime', title: '数据上传时间', templet: function (d) {
+                            return d.createTime == null ? "" : util.toDateString(d.createTime);
+                        }, sort: true, minWidth: 160
+                    },
+                    {
+                        field: 'checkTime', title: '检测时间', templet: function (d) {
+                            return d.checkTime == null ? "" : util.toDateString(d.checkTime);
+                        }, sort: true, minWidth: 160
+                    },
+                    {field: 'checkValue', title: '检测数值', width: 100},
+                    {field: 'userId', title: '会员ID', width: 80},
+                    {field: 'userMobile', title: '手机号码', width: 130},
+                    {field: 'userName', title: '会员姓名', width: 130},
+                    {
+                        field: 'recordType', title: '录入方式', templet: function (d) {
+                            switch (d.recordType) {
+                                case 0:
+                                    return "设备录入";
+                                case 1:
+                                    return "手动录入";
+                                default:
+                                    return "";
+                            }
+                        }, width: 100
+                    },
+                    {
+                        field: 'handleStatus', title: '状态', templet: function (d) {
+                            return d.handleUserId == null ? '<span class="layui-badge layui-badge-gray">未处理</span>' :
+                                '<span class="layui-badge layui-badge-green handlePart" id="check-' + d.id + '" check-advise="' + d.handleAdvise + '">已处理</span>';
+                        }, width: 100, align: 'center'
+                    },
+                    {
+                        field: 'handleUser', title: '处理人', templet: function (d) {
+                            return d.handleUser == null ? "--" : d.handleUser;
+                        }, width: 100
+                    },
+                    {
+                        field: 'handleTime', title: '处理时间', templet: function (d) {
+                            return d.handleTime == null ? "--" : util.toDateString(d.handleTime);
+                        }, minWidth: 160
+                    },
+                    {title: '操作', toolbar: '#tableBarAuth', align: 'center', width: 200, fixed: 'right'}
+                ]
+            ],
+            loading: false,
+            page: true,
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.errorMessage, //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                };
+            },
+            afterSuccess: function () {
+                $(".handlePart").mouseover(function () {
+                    layer.tips($(this).attr('check-advise'), '#' + $(this).attr('id'));
+                })
+            },
+        });
+
+        form.on('submit(searchBtn)', function (data) {
+            for (var f in data.field) {
+                data.field[f] = $.trim(data.field[f]);
+            }
+            insTb.reload({where: data.field, page: {curr: 1}});
+            return false;
+        });
+
+        table.on('tool(dataTable)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'handle') {
+                showHandleModel(data);
+            } else if (layEvent === 'view') {
+                adminIndex.openTab({
+                    url: "/view/member/memberInfo.html?id=" + data.userId,
+                    title: "会员档案-" + data.userId,
+                    refresh: true
+                });
+            } else if (layEvent === 'viewHandle') {
+                showHandleModel(data);
+            }
+        });
+
+        function showHandleModel(data) {
+            admin.open({
+                type: 1,
+                area: '640px',
+                title: (data.handleUserId == null ? '填写处理建议' : '查看处理详情'),
+                content: $('#modelHandle').html(),
+                success: function (layero, dIndex) {
+                    if (data.handleUserId != null) {
+                        $("#handled-part").removeClass('hide');
+                        $("#saveBtn").addClass("hide");
+                        $("#handleForm input,textarea").attr("readonly", "true").attr("disabled", "true");
+                        $("#handleForm .layui-form-label").removeClass('layui-form-required');
+                    } else {
+                        $("#dataForm input,textarea").removeAttr("readonly").removeAttr("disabled");
+                        $("#handled-part").addClass('hide');
+                        $("#saveBtn").removeClass("hide");
+                    }
+                    data.handleTime = util.toDateString(data.handleTime);
+                    form.val('handleForm', data);
+                    var id = data.id;
+                    // 表单提交事件
+                    form.on('submit(saveBtn)', function (data) {
+                        data.field.id = id;
+                        $.post({
+                            url: '/checkRecord/handleCheckRecord',
+                            data: JSON.stringify(data.field),
+                            async: false,
+                            contentType: 'application/json',
+                            success: function (res) {
+                                if (res.success) {
+                                    layer.close(dIndex);
+                                    layer.msg(res.data, {icon: 1});
+                                    insTb.reload();
+                                } else {
+                                    errorMsg(res.errorMessage);
+                                }
+                            }
+                        });
+                        return false;
+                    })
+                }
+            });
+        }
+
+    });
+</script>
+</body>
+</html>

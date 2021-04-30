@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/links :: common_header(~{::title},~{},~{})">
+    <title>小久智康管理系统</title>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!--头部信息-->
+    <div th:replace="layout/header::head_navbar"></div>
+    <!--左边导航-->
+    <div th:replace="layout/lefter::left_sidebar"></div>
+    <!--中间内容-->
+    <div th:replace="layout/main::main"></div>
+    <!--&lt;!&ndash;底部版权&ndash;&gt;-->
+    <!--<div th:replace="layout/footer::footer"></div>-->
+</div>
+
+<!-- 加载动画 -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+
+<!-- js部分 -->
+<div th:replace="common/scripts :: jquery"></div>
+<div th:replace="common/scripts :: common"></div>
+
+<script>
+    layui.use(['index'], function () {
+        var $ = layui.jquery;
+        var index = layui.index;
+
+        index.loadHome({
+            menuPath: '/view/index.html',
+            menuName: '<i class="layui-icon layui-icon-home"></i>  工作台'
+        });
+
+        $(".layui-tab-title li:first").click(function () {
+            $(parent.document).find("iframe[lay-id='" + $(this).attr("lay-id") + "']").attr("src", $(this).attr("lay-id"));
+        })
+
+        getUser();
+
+        function getUser() {
+            $.ajax({
+                type: "get",
+                url: "/platformUser/getPlatformUser",
+                async: false, // 异步请求
+                cache: false, // 设置为 false 将不缓存此页面
+                dataType: 'json', // 返回对象
+                success: function (res) {
+                    if (res.success) {
+                        var mdata = res.data;
+                        window.localStorage.setItem("LoginUser", JSON.stringify(mdata));
+                        $("#realName").text(res.data.realName);
+                        if (res.data.isAdmin == 1) {
+                            $("#platformUserPart").css("display", "");
+                        }
+                    }
+                }
+            })
+        }
+
+    });
+</script>
+</body>
+</html>

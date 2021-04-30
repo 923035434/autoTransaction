@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/links :: common_header(~{::title},~{},~{})">
+    <script>if (window !== top) top.location.replace(location.href);</script>
+    <title>用户登录</title>
+</head>
+<body>
+<div class="login-wrapper">
+    <div class="login-header">
+        <img style="width: 80px;" th:src="@{/assets/images/logo.png}">
+        智能交易系统
+    </div>
+    <form class="layui-form">
+        <h2>用户登录</h2>
+        <div class="layui-form-item layui-input-icon-group">
+            <i class="layui-icon layui-icon-username"></i>
+            <input class="layui-input" name="loginName" placeholder="请输入登录账号" autocomplete="off"
+                   lay-verType="tips" lay-verify="required" required/>
+        </div>
+        <div class="layui-form-item layui-input-icon-group">
+            <i class="layui-icon layui-icon-password"></i>
+            <input class="layui-input" name="password" placeholder="请输入登录密码" type="password"
+                   lay-verType="tips" lay-verify="required" required/>
+        </div>
+        <div class="layui-form-item layui-input-icon-group">
+            <i class="layui-icon layui-icon-vercode"></i>
+            <input class="layui-input" name="loginCode" placeholder="请输入验证码"
+                   lay-verType="tips" lay-verify="required" required
+                   style="width: 260px;display: initial;float: left;"/>
+            <image class="vercode-img"></image>
+        </div>
+        <div class="layui-form-item">
+            <button class="layui-btn layui-btn-fluid" lay-filter="loginSubmit" lay-submit>登录</button>
+        </div>
+    </form>
+</div>
+<style>
+    body {
+        background-image: url("assets/images/bg-screen.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        min-height: 100vh;
+    }
+
+    body:before {
+        content: "";
+        background-color: rgba(0, 0, 0, .2);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .login-wrapper {
+        max-width: 500px;
+        padding: 20px;
+        margin: 0 auto;
+        position: relative;
+        box-sizing: border-box;
+        z-index: 2;
+    }
+
+    .login-header {
+        font-family: Myriad Pro, Helvetica Neue, Arial, Helvetica, sans-serif;
+        padding: 30px 30px 30px 100px;
+        font-size: 24px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    .login-wrapper > .layui-form {
+        padding: 25px 30px;
+        background-color: #fff;
+        box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.19);
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+
+    .login-wrapper > .layui-form > h2 {
+        color: #333;
+        font-size: 18px;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item > .layui-input {
+        height: 46px;
+        line-height: 46px;
+        border-radius: 2px !important;
+    }
+
+    .login-wrapper .layui-input-icon-group > .layui-input {
+        padding-left: 46px;
+    }
+
+    .login-wrapper .layui-input-icon-group > .layui-icon {
+        width: 46px;
+        height: 46px;
+        line-height: 46px;
+        font-size: 20px;
+        color: #909399;
+        position: absolute;
+        left: 0;
+        top: 0;
+        text-align: center;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item.login-captcha-group {
+        padding-right: 135px;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item.login-captcha-group > .login-captcha {
+        height: 46px;
+        width: 120px;
+        cursor: pointer;
+        box-sizing: border-box;
+        border: 1px solid #e6e6e6;
+        border-radius: 2px !important;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item > .layui-form-checkbox {
+        margin: 0 !important;
+        padding-left: 25px;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item > .layui-form-checkbox > .layui-icon {
+        width: 15px !important;
+        height: 15px !important;
+    }
+
+    .login-wrapper > .layui-form .layui-btn-fluid {
+        height: 48px;
+        line-height: 48px;
+        font-size: 16px;
+        border-radius: 2px !important;
+    }
+
+    .login-wrapper > .layui-form > .layui-form-item.login-oauth-group > a > .layui-icon {
+        font-size: 26px;
+    }
+
+    @media screen and (min-height: 550px) {
+        .login-wrapper {
+            margin: -360px auto 0;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+    }
+
+    .layui-btn {
+        background-color: #1890ff;
+        border-color: #1890ff;
+    }
+
+    .vercode-img {
+        float: left;
+        cursor: pointer;
+        box-sizing: border-box;
+        border-radius: 2px !important;
+        position: absolute;
+        right: 0;
+        border: 1px solid #e6e6e6;
+        top: 0;
+    }
+</style>
+
+<!-- js部分 -->
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: jquery"></div>
+<script>
+    layui.use(['admin', 'layer', 'form', 'notice'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var notice = layui.notice;
+        var admin = layui.admin;
+
+        //在iframe中的时候跳出
+        if (self != top) {
+            window.top.location.href = '/login';
+        }
+
+
+        form.on('submit(loginSubmit)', function (obj) {
+            var data = obj.field;
+            data.uuid = verCodeUUID;
+            data.loginName = $.trim(data.loginName);
+            data.loginCode = $.trim(data.loginCode);
+
+            $.post({
+                url: '/auth/login',
+                data: JSON.stringify(data),
+                async: false,
+                contentType: 'application/json',
+                success: function (res) {
+                    if (res.success) {
+                        layer.msg('登录成功', {icon: 1, time: 1500}, function () {
+                            console.info('res', res);
+                            var currentUrl = window.location.href;
+                            var matchRes = currentUrl.match("returnUrl=(.*)");
+                            var returnUrl = matchRes ? matchRes[1] : '';
+                            if (returnUrl.length !== 0) {
+                                top.window.location.href = returnUrl;
+                            }
+                            else {
+                                top.window.location.replace('index');
+                            }
+                        });
+                    } else {
+                        notice.error({
+                            title: '登录失败',
+                            message: res.errorMessage,
+                            theme: "light",
+                            displayMode: 2,
+                            layout: 2
+                        });
+                    }
+                },
+                error: function (e) {
+                    // // 请求失败函数
+                    // const error = e.responseJSON;
+                    // if (!error.success) {
+                    //     notice.error({
+                    //         title: '登录失败',
+                    //         message: error.errorMessage,
+                    //         theme: "light",
+                    //         displayMode: 2,
+                    //         layout: 2
+                    //     });
+                    // }
+                }
+            })
+            return false;
+        });
+
+        // 图形验证码
+        $('.login-captcha').click(function () {
+            this.src = this.src + '?t=' + (new Date).getTime();
+        });
+
+        var verCodeUUID = '';
+
+        $('.vercode-img').click(function () {
+            getVerCode();
+        });
+
+        function getVerCode() {
+            $.get("/auth/getImageCode", function (res) {
+                if (res.success) {
+                    verCodeUUID = res.data.uuid;
+                    $(".vercode-img").attr('src', 'data:image/png;base64,' + res.data.imageBase64);
+                }
+            })
+        }
+
+        getVerCode();
+
+        //切换主题
+        admin.changeTheme("theme-cyan");
+
+    });
+
+</script>
+</body>
+</html>
