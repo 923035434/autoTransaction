@@ -14,10 +14,6 @@ public class UserInfo {
      */
     private Integer id;
     /**
-     * 姓名
-     */
-    private String realName;
-    /**
      * 账号
      */
     private String accountNumber;
@@ -29,10 +25,6 @@ public class UserInfo {
      * 最后登录时间
      */
     private LocalDateTime loginTime;
-    /**
-     * 登录IP
-     */
-    private String loginIp;
     /**
      * 状态（0：正常；1：禁用）
      */

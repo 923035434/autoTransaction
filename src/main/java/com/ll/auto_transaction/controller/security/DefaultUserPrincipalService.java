@@ -6,9 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultUserPrincipalService implements UserPrincipalService {
 
 
-    public DefaultUserPrincipalService() {
-
-    }
 
     @Override
     public UserPrincipal loadUserByUsername(String username) {
