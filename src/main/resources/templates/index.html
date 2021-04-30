@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="common/links :: common_header(~{::title},~{},~{})">
-    <title>小久智康管理系统</title>
+    <title>智能交易管理系统</title>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -40,27 +40,27 @@
             $(parent.document).find("iframe[lay-id='" + $(this).attr("lay-id") + "']").attr("src", $(this).attr("lay-id"));
         })
 
-        getUser();
+        // getUser();
 
-        function getUser() {
-            $.ajax({
-                type: "get",
-                url: "/platformUser/getPlatformUser",
-                async: false, // 异步请求
-                cache: false, // 设置为 false 将不缓存此页面
-                dataType: 'json', // 返回对象
-                success: function (res) {
-                    if (res.success) {
-                        var mdata = res.data;
-                        window.localStorage.setItem("LoginUser", JSON.stringify(mdata));
-                        $("#realName").text(res.data.realName);
-                        if (res.data.isAdmin == 1) {
-                            $("#platformUserPart").css("display", "");
-                        }
-                    }
-                }
-            })
-        }
+        // function getUser() {
+        //     $.ajax({
+        //         type: "get",
+        //         url: "/platformUser/getPlatformUser",
+        //         async: false, // 异步请求
+        //         cache: false, // 设置为 false 将不缓存此页面
+        //         dataType: 'json', // 返回对象
+        //         success: function (res) {
+        //             if (res.success) {
+        //                 var mdata = res.data;
+        //                 window.localStorage.setItem("LoginUser", JSON.stringify(mdata));
+        //                 $("#realName").text(res.data.realName);
+        //                 if (res.data.isAdmin == 1) {
+        //                     $("#platformUserPart").css("display", "");
+        //                 }
+        //             }
+        //         }
+        //     })
+        // }
 
     });
 </script>

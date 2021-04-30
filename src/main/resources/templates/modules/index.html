@@ -126,82 +126,62 @@
 <div class="layui-fluid ew-console-wrapper">
     <div class="layui-row layui-col-space15 top-part">
         <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
-            <div class="console-link-block main-index pointer" url="/view/member/checkError.html?isHandle=0"
-                 url-title="检测异常列表">
-                <div class="console-link-block-num"><span id="unHandleCheck"></span></div>
-                <div class="console-link-block-text">检测异常</div>
-                <i class="console-link-block-icon layui-icon layui-icon-survey">0</i>
-                <div class="console-link-block-band">待处理</div>
-            </div>
-        </div>
-        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
-            <div class="console-link-block main-index pointer" url="/view/member/caseHandle.html?isHandle=0"
-                 url-title="病历列表">
-                <div class="console-link-block-num"><span id="unHandleCase">0</span></div>
-                <div class="console-link-block-text">病历</div>
-                <i class="console-link-block-icon layui-icon layui-icon-survey"></i>
-                <div class="console-link-block-band">待处理</div>
-            </div>
-        </div>
-        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
-            <div class="console-link-block main-index pointer" url="/view/member/consult.html?isHandle=0"
-                 url-title="留言咨询">
-                <div class="console-link-block-num"><span id="consultCount">0</span></div>
-                <div class="console-link-block-text">留言咨询</div>
-                <i class="console-link-block-icon layui-icon layui-icon-survey"></i>
-                <div class="console-link-block-band">待处理</div>
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    系统运行状态
+                </div>
+                <div class="layui-card-body">
+                    <p class="lay-big-font">
+                        <span class="layui-badge layui-badge-green pull-letf">正常</span>
+                    </p>
+                </div>
             </div>
         </div>
         <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
             <div class="layui-card">
                 <div class="layui-card-header">
-                    新增会员<span class="layui-badge layui-badge-green pull-right">日</span>
+                    请求验证数据配置
+                </div>
+                <div class="layui-card-body">
+                    <p>
+                        host：
+                    </p>
+                    <p >
+                        validate：
+                    </p>
+                    <p >
+                        coockie：
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="console-link-block main-index pointer"
+                 url-title="可用余额">
+                <div class="console-link-block-num"><span id="consultCount">0</span></div>
+                <div class="console-link-block-text">可用余额</div>
+                <i class="console-link-block-icon layui-icon layui-icon-survey"></i>
+            </div>
+        </div>
+        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    今日收益<span class="layui-badge layui-badge-green pull-right">日</span>
                 </div>
                 <div class="layui-card-body">
                     <p id="todayMemberCount" class="lay-big-font">0</p>
-                    <p>总会员<span class="pull-right" id="memberCount">0</span></p>
+                    <p>总收益<span class="pull-right" id="memberCount">0</span></p>
                 </div>
             </div>
         </div>
 
-    </div>
-
-    <div class="layui-row layui-col-space15">
-        <div class="layui-row layui-col-space15">
-            <div class="layui-col-xs6 layui-col-sm3 quick-part">
-                <div class="console-app-group" url="/view/member/memberList.html" url-title="会员列表">
-                    <i class="console-app-icon layui-icon layui-icon-user" style="color: #95de64;"></i>
-                    <div class="console-app-name">会员</div>
-                </div>
-            </div>
-            <div class="layui-col-xs6 layui-col-sm3 quick-part">
-                <div class="console-app-group" url="/view/member/checkError.html" url-title="检测异常列表">
-                    <i class="console-app-icon layui-icon layui-icon-tabs" style="color: #ff9c6e;"></i>
-                    <div class="console-app-name">检测异常</div>
-                </div>
-            </div>
-            <div class="layui-col-xs6 layui-col-sm3 quick-part">
-                <div class="console-app-group" url="/view/member/caseHandle.html" url-title="病历列表">
-                    <i class="console-app-icon layui-icon layui-icon-form"
-                       style="color: #b37feb;font-size: 30px;"></i>
-                    <div class="console-app-name">病历</div>
-                </div>
-            </div>
-            <div class="layui-col-xs6 layui-col-sm3 quick-part">
-                <div class="console-app-group" url="/view/member/consult.html" url-title="留言咨询">
-                    <i class="console-app-icon layui-icon layui-icon-reply-fill"
-                       style="color: #ffd666;font-size: 30px;"></i>
-                    <div class="console-app-name">留言咨询</div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div class="layui-row layui-col-space15">
         <div class="layui-col-md6" style="min-width: 360px">
             <div class="layui-card">
                 <div class="layui-card-header">
-                    检测异常处理动态
+                    证券监控动态
                 </div>
                 <div class="layui-card-body">
                     <ul id="errorCheckList" class="layui-timeline layui-timeline-dynamic"></ul>
@@ -211,7 +191,7 @@
         <div class="layui-col-md6" style="min-width: 360px">
             <div class="layui-card">
                 <div class="layui-card-header">
-                    病历处理动态
+                    收益趋势
                 </div>
                 <div class="layui-card-body">
                     <ul id="caseList" class="layui-timeline layui-timeline-dynamic"></ul>
@@ -232,52 +212,6 @@
         var admin = layui.admin
         var adminIndex = layui.index;
 
-        getData();
-
-        function getData() {
-            $.ajax({
-                type: "get",
-                url: "/platformUser/getPlatHome",
-                dataType: 'json',
-                success: function (res) {
-                    if (res.success) {
-                        $("#errorCheckList").html("");
-                        $("#caseList").html("");
-                        var indexs = Object.keys(res.data);
-                        indexs.forEach(function (i) {
-                            if (i.indexOf('List') == -1) {
-                                $("#" + i).text(res.data[i]);
-                            }
-                        })
-                        res.data.errorCheckList.forEach(function (i) {
-                            $("#errorCheckList").append('<li class="layui-timeline-item">' +
-                                '<i class="layui-icon layui-timeline-axis"></i>' +
-                                '<div class="layui-timeline-content layui-text">' +
-                                '<div class="layui-timeline-title">' + (i.handleUser) + ' 处理了检测异常<span class="pull-right">' + util.toDateString(i.handleTime) + '</span></div>' +
-                                '</div>' +
-                                '</li>');
-                        })
-                        res.data.caseList.forEach(function (i) {
-                            $("#caseList").append('<li class="layui-timeline-item">' +
-                                '<i class="layui-icon layui-timeline-axis"></i>' +
-                                '<div class="layui-timeline-content layui-text">' +
-                                '<div class="layui-timeline-title">' + (i.handleUser) + ' 处理了病历<span class="case-go" case-id="' + i.id + '">【' + i.id + '】</span></span><span class="pull-right">' + util.toDateString(i.handleTime) + '</span></div>' +
-                                '</div>' +
-                                '</li>');
-                        })
-
-                        $('.case-go').click(function () {
-                            var id = $(this).attr('case-id');
-                            adminIndex.openTab({
-                                url: '/view/member/memberCase.html?id=' + id,
-                                title: '会员病历-' + id,
-                            });
-                        })
-
-                    }
-                }
-            })
-        }
 
         $('.main-index,.console-app-group').click(function () {
             var tab = {
