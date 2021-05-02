@@ -4,6 +4,11 @@
     <title>工作台</title>
     <style>
 
+
+        .hide{
+            diaplay:none
+        }
+
         .layui-timeline-dynamic .layui-timeline-item {
             padding-bottom: 0;
         }
@@ -131,27 +136,32 @@
                     系统运行状态
                 </div>
                 <div class="layui-card-body">
-                    <p class="lay-big-font">
-                        <span class="layui-badge layui-badge-green pull-letf">正常</span>
-                    </p>
+                    <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">接口连接：</label>
+                        <span class="layui-badge layui-badge-green pull-letf hide">正常</span>
+                        <span class="layui-badge layui-badge-orange pull-letf">断开</span>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">自动交易：</label>
+                        <div class="layui-input-block">
+                            <input type="checkbox" name="close" lay-skin="switch" lay-filter="autoSwitch" lay-text="ON|OFF">
+                        </div>
+                    </div>
+                    </form>
                 </div>
             </div>
         </div>
         <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
             <div class="layui-card">
                 <div class="layui-card-header">
-                    请求验证数据配置
+                    操作
                 </div>
                 <div class="layui-card-body">
-                    <p>
-                        host：
-                    </p>
-                    <p >
-                        validate：
-                    </p>
-                    <p >
-                        coockie：
-                    </p>
+                    <div class="layui-btn-container">
+                        <button type="button" class="layui-btn layui-btn-primary">自动挂单</button>
+                        <button type="button" class="layui-btn layui-btn-primary">一键撤单</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -208,10 +218,17 @@
     layui.use(['layer', 'table', 'index', 'form'], function () {
         var $ = layui.jquery;
         var layer = layui.layer;
+        var form = layui.form;
         var util = layui.util;
         var admin = layui.admin
         var adminIndex = layui.index;
-
+        //监听指定开关
+        form.on('switch(autoSwitch)', function(data){
+            layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+                offset: '6px'
+            });
+            layer.tips(data)
+        });
 
         $('.main-index,.console-app-group').click(function () {
             var tab = {
