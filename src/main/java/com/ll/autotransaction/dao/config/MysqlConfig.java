@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 
-@MapperScan( basePackages = "com.ll.auto_transaction.dao",annotationClass = Repository.class, sqlSessionTemplateRef  = "mysqlSessionTemplate")
+@MapperScan( basePackages = "com.ll.autotransaction.dao",annotationClass = Repository.class, sqlSessionTemplateRef  = "mysqlSessionTemplate")
 @Configuration
 public class MysqlConfig {
     @Bean(name = "mysqlDataSource")
