@@ -94,7 +94,7 @@ public class LocalCacheUtil {
                 newCache.put(e.getKey(), e.getValue());
             }
             cacheMap = newCache;
-        }, 0, 5 * 60, TimeUnit.SECONDS);
+        }, 0, 60, TimeUnit.SECONDS);
     }
 
 }

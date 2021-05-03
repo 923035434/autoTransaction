@@ -32,12 +32,11 @@ public class CommonResult<T> {
         this.data = data;
     }
 
-
-    public CommonResult(T data, HttpStatus errorCode, String errorMessage) {
-        this.data = data;
+    public CommonResult(HttpStatus errorCode,String msg) {
         this.errorCode = errorCode;
-        this.errorMessage = errorMessage;
+        this.errorMessage = msg;
     }
+
 
     /**
      * API调用是否成功
@@ -53,13 +52,13 @@ public class CommonResult<T> {
     }
 
 
-    public static <T> CommonResult<T> error(T data) {
-        return new CommonResult<>(data,HttpStatus.INTERNAL_SERVER_ERROR);
+    public static <T> CommonResult<T> error(String msg) {
+        return new CommonResult<>(HttpStatus.BAD_REQUEST,msg);
     }
 
 
-    public static <T> CommonResult<T> error(HttpStatus errorCode,T data) {
-        return new CommonResult<>(data,errorCode);
+    public static <T> CommonResult<T> error(HttpStatus errorCode,String msg) {
+        return new CommonResult<>(errorCode,msg);
     }
 
 }

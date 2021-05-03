@@ -14,7 +14,7 @@
         <h2>用户登录</h2>
         <div class="layui-form-item layui-input-icon-group">
             <i class="layui-icon layui-icon-username"></i>
-            <input class="layui-input" name="loginName" placeholder="请输入登录账号" autocomplete="off"
+            <input class="layui-input" name="accountNumber" placeholder="请输入登录账号" autocomplete="off"
                    lay-verType="tips" lay-verify="required" required/>
         </div>
         <div class="layui-form-item layui-input-icon-group">
@@ -24,7 +24,7 @@
         </div>
         <div class="layui-form-item layui-input-icon-group">
             <i class="layui-icon layui-icon-vercode"></i>
-            <input class="layui-input" name="loginCode" placeholder="请输入验证码"
+            <input class="layui-input" name="validateCode" placeholder="请输入验证码"
                    lay-verType="tips" lay-verify="required" required
                    style="width: 260px;display: initial;float: left;"/>
             <image class="vercode-img"></image>
@@ -200,8 +200,6 @@
         form.on('submit(loginSubmit)', function (obj) {
             var data = obj.field;
             data.uuid = verCodeUUID;
-            data.loginName = $.trim(data.loginName);
-            data.loginCode = $.trim(data.loginCode);
 
             $.post({
                 url: '/auth/login',
