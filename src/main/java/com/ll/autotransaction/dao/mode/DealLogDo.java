@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("deal_log")
 public class DealLogDo {
 
-    private int id;
+    private Integer id;
 
     private String code;
 

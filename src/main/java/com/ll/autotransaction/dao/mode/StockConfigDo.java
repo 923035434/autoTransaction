@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("stock_config")
 public class StockConfigDo {
 
-    private int id;
+    private Integer id;
 
     private int enable;
 

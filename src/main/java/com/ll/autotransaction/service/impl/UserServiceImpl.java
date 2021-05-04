@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ll.autotransaction.dao.UserDao;
 import com.ll.autotransaction.dao.mode.UserDo;
 import com.ll.autotransaction.service.UserService;
+import com.ll.autotransaction.service.model.SystemConfigInfo;
 import com.ll.autotransaction.service.model.UserInfo;
 import com.ll.autotransaction.util.MD5Util;
 import lombok.var;
@@ -39,6 +40,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserInfo getUserById(Integer id) {
+        var result = new UserInfo();
+        var queryResult = userDao.selectById(id);
+        if(queryResult==null){
+            return null;
+        }
+        BeanUtils.copyProperties(queryResult,result);
+        return result;
+    }
+
+    @Override
     public boolean addUser(String account, String password) throws Exception {
         if(!StringUtils.hasText(account)||!StringUtils.hasText(password)){
             return false;
@@ -53,5 +65,26 @@ public class UserServiceImpl implements UserService {
         userDo.setStatus(0);
         userDo.setPassword(MD5Util.encode(password));
         return userDao.insert(userDo)>0;
+    }
+
+    @Override
+    public boolean EditSystemConfig(int userId, SystemConfigInfo info) throws Exception {
+        var userInfo = userDao.selectById(userId);
+        if(userInfo==null){
+            throw new Exception("用户数据不存在");
+        }
+        if(StringUtils.hasText(info.getCookies())){
+            userInfo.setCookies(info.getCookies());
+        }
+        if(StringUtils.hasText(info.getHost())){
+            userInfo.setHost(info.getHost());
+        }
+        if(StringUtils.hasText(info.getValidateCode())){
+            userInfo.setValidateCode(info.getValidateCode());
+        }
+        if(info.getEnableAutoTransaction()!=null){
+            userInfo.setEnableAutoTransaction(info.getEnableAutoTransaction());
+        }
+        return userDao.updateById(userInfo)>0;
     }
 }

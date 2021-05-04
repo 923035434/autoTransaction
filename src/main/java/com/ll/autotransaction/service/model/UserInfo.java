@@ -30,5 +30,17 @@ public class UserInfo {
     private Integer status;
 
 
+    private String cookies;
+
+
+    private String validateCode;
+
+
+    private String host;
+
+
+    private int enableAutoTransaction;
+
+
 
 }

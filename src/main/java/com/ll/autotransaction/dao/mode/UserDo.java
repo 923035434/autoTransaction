@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("user")
 public class UserDo {
 
-    private int id;
+    private Integer id;
 
     private LocalDateTime createTime;
 
@@ -25,5 +25,15 @@ public class UserDo {
 
     private int status;
 
+    private String cookies;
+
+
+    private String validateCode;
+
+
+    private String host;
+
+
+    private int enableAutoTransaction;
 
 }
