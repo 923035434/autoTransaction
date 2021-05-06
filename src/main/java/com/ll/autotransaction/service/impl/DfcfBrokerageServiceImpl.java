@@ -3,10 +3,7 @@ package com.ll.autotransaction.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.ll.autotransaction.service.config.BrokerageConfig;
 import com.ll.autotransaction.service.BrokerageService;
-import com.ll.autotransaction.service.model.ApplyDataInfo;
-import com.ll.autotransaction.service.model.DealInfo;
-import com.ll.autotransaction.service.model.StockInfo;
-import com.ll.autotransaction.service.model.TransactionParam;
+import com.ll.autotransaction.service.model.*;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -85,6 +82,25 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
     }
 
     @Override
+    public StockAccountInfo getStockAccountInfo() {
+        var result = new StockAccountInfo();
+        var queryResult = this.queryAssetAndPositionV1();
+        var balanceStr = queryResult.getString("Kyzj");
+        if(StringUtils.hasText(balanceStr)){
+            result.setBalance(BigDecimal.valueOf(Double.valueOf(balanceStr)));
+        }
+        var todayStr = queryResult.getString("Dryk");
+        if(StringUtils.hasText(todayStr)){
+            result.setTodayProfit(BigDecimal.valueOf(Double.valueOf(todayStr)));
+        }
+        var allStr = queryResult.getString("Ljyk");
+        if(StringUtils.hasText(allStr)){
+            result.setAllProfit(BigDecimal.valueOf(Double.valueOf(allStr)));
+        }
+        return result;
+    }
+
+    @Override
     public String buy(TransactionParam param) {
         var result = "";
         var headers = this.getRequestHeader();
@@ -136,7 +152,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
     }
 
     @Override
-    public boolean RevokeOrders(String applyCode) {
+    public boolean revokeOrders(String applyCode) {
         var headers = this.getRequestHeader();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("revokes",LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_"))+applyCode);
@@ -149,6 +165,15 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean revokeOrders() {
+        var queryResult = this.getTodayOrdersData(null);
+        for (var item :queryResult){
+            this.revokeOrders(item.getApplyCode());
+        }
+        return true;
     }
 
 
@@ -215,7 +240,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
     }
 
     @Override
-    public List<ApplyDataInfo> getTodayOrdersData() {
+    public List<ApplyDataInfo> getTodayOrdersData(String state) {
         var result = new ArrayList<ApplyDataInfo>();
         var headers = this.getRequestHeader();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
@@ -242,7 +267,15 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
                 item.setCount(dataJsonObj.getInteger("Wtsl"));
                 item.setDealCount(dataJsonObj.getInteger("Cjsl"));
                 item.setStatus(dataJsonObj.getString("Wtzt"));
-                result.add(item);
+                if(!item.getApplyType().equals("配售申购")){
+                    if(StringUtils.hasText(state)){
+                        if(item.getStatus().equals(state)){
+                            result.add(item);
+                        }
+                    }else {
+                        result.add(item);
+                    }
+                }
             }
         }
         return result;
@@ -266,17 +299,15 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
                 var dataJsonObj = JSONObject.parseObject(data.toString());
                 var item = new DealInfo();
                 item.setApplyCode(dataJsonObj.getString("Wtbh"));
-                var applyTime = LocalDateTime.of(LocalDate.parse(dataJsonObj.getString("Wtrq"),DateTimeFormatter.ofPattern("yyyyMMdd")),
-                        LocalTime.parse(dataJsonObj.getString("Wtsj").substring(0,6),DateTimeFormatter.ofPattern("HHmmss")));
-//                item.setApplyTime(applyTime);
-//                item.setApplyType(dataJsonObj.getString("Mmsm"));
-//                item.setCode(dataJsonObj.getString("Zqdm"));
-//                item.setName(dataJsonObj.getString("Zqmc"));
-//                item.setPrice(dataJsonObj.getBigDecimal("Wtjg"));
-//                item.setCount(dataJsonObj.getInteger("Wtsl"));
-//                item.setDealCount(dataJsonObj.getInteger("Cjsl"));
-//                item.setStatus(dataJsonObj.getString("Wtzt"));
-//                result.add(item);
+                var dealTime = LocalDateTime.of(LocalDate.now(),
+                        LocalTime.parse(dataJsonObj.getString("Cjsj").substring(0,6),DateTimeFormatter.ofPattern("HHmmss")));
+                item.setDealTime(dealTime);
+                item.setCode(dataJsonObj.getString("Zqdm"));
+                item.setName(dataJsonObj.getString("Zqmc"));
+                item.setApplyType(dataJsonObj.getString("Mmsm"));
+                item.setCount(dataJsonObj.getInteger("Wtsl"));
+                item.setPrice(dataJsonObj.getBigDecimal("Wtjg"));
+                result.add(item);
             }
         }
         return result;

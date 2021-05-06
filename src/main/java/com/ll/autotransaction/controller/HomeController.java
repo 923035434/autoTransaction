@@ -27,13 +27,11 @@ public class HomeController extends BaseController {
     @PostMapping("/getHomeResult")
     public CommonResult<HomeResultVO> getHomeResult() {
         var result = new HomeResultVO();
-//        var balance = brokerageService.getBalance();
-//        result.setApiState(true);
-//        result.setBalance(balance);
+        var accountInfo = brokerageService.getStockAccountInfo();
         result.setApiState(true);
-        result.setBalance(BigDecimal.valueOf(10000));
-        result.setTodayProfit(BigDecimal.valueOf(6666));
-        result.setAllProfit(BigDecimal.valueOf(8888));
+        result.setBalance(accountInfo.getBalance());
+        result.setTodayProfit(accountInfo.getTodayProfit());
+        result.setAllProfit(accountInfo.getAllProfit());
         var userInfo = userService.getUserById(getUserId());
         result.setEnableAutoTransaction(userInfo.getEnableAutoTransaction() == 1);
         return CommonResult.success(result);

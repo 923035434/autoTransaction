@@ -41,6 +41,13 @@ public class StockConfigServiceImpl implements StockConfigService {
     }
 
     @Override
+    public List<StockConfigDo> listEnable() {
+        var wrapper = new QueryWrapper<StockConfigDo>().lambda().eq(StockConfigDo::getEnable,1).orderByDesc(StockConfigDo::getCreateTime);
+        var list = stockConfigDao.selectList(wrapper);
+        return list;
+    }
+
+    @Override
     public boolean add(StockConfigDo item) {
         item.setLowPrice(PriceUtil.getLowPrice(item.getPrice()));
         item.setHighPrice(PriceUtil.getHighPrice(item.getPrice()));

@@ -14,7 +14,7 @@ public class TransactionParam {
     private String name;
 
     //股票数量
-    private BigDecimal count;
+    private Integer count;
 
     //价格
     private BigDecimal price;

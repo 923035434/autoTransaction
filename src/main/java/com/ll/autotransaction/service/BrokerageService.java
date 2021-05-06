@@ -1,9 +1,6 @@
 package com.ll.autotransaction.service;
 
-import com.ll.autotransaction.service.model.ApplyDataInfo;
-import com.ll.autotransaction.service.model.DealInfo;
-import com.ll.autotransaction.service.model.StockInfo;
-import com.ll.autotransaction.service.model.TransactionParam;
+import com.ll.autotransaction.service.model.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +13,14 @@ public interface BrokerageService {
      * @return
      */
     public BigDecimal getBalance();
+
+
+    /**
+     * 获取资金数据
+     * @return
+     */
+    public StockAccountInfo getStockAccountInfo();
+
 
 
     /**
@@ -37,8 +42,13 @@ public interface BrokerageService {
      * @param applyCode
      * @return
      */
-    public boolean RevokeOrders(String applyCode);
+    public boolean revokeOrders(String applyCode);
 
+    /**
+     * 撤单
+     * @return
+     */
+    public boolean revokeOrders();
 
     /**
      * 查看当前持仓
@@ -62,7 +72,7 @@ public interface BrokerageService {
      * 查看今日的委托
      * @return
      */
-    public List<ApplyDataInfo> getTodayOrdersData();
+    public List<ApplyDataInfo> getTodayOrdersData(String state);
 
 
     /**

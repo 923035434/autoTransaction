@@ -58,12 +58,12 @@ public class DfcfServiceTest {
     @Test
     public void SellTest(){
 //        var param = new TransactionParam(){{
-//            setCode("600703");
-//            setName("三安光电");
-//            setCount(BigDecimal.valueOf(100));
-//            setPrice(BigDecimal.valueOf(29.00));
-//        }};
-//        var result = brokerageService.sell(param);
+////            setCode("600703");
+////            setName("三安光电");
+////            setCount(BigDecimal.valueOf(100));
+////            setPrice(BigDecimal.valueOf(29.00));
+////        }};
+////        var result = brokerageService.sell(param);
 //        System.out.println(result);
     }
 
@@ -71,7 +71,7 @@ public class DfcfServiceTest {
 
     @Test
     public void RevokeOrdersTest(){
-        var result = brokerageService.RevokeOrders("5678");
+        var result = brokerageService.revokeOrders("539172");
         System.out.println(result);
     }
 
@@ -85,10 +85,16 @@ public class DfcfServiceTest {
 
     @Test
     public void getTodayOrdersDataTest(){
-        var result = brokerageService.getTodayOrdersData();
+        var result = brokerageService.getTodayOrdersData(null);
         System.out.println(result);
     }
 
+
+    @Test
+    public void getTodayHisDealDataTest(){
+        var result = brokerageService.getTodayHisDealData();
+        System.out.println(result);
+    }
 
 
 
