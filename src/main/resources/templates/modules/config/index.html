@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="common/links :: common_header(~{::title},~{::style},~{})">
+    <title>订单详情</title>
+    <style>
+        .hide {
+            display: none;
+        }
+
+        .order-info-box {
+            display: inline;
+            float: left;
+            margin-right: 60px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: jquery"></div>
+<div th:replace="common/scripts :: service"></div>
+
+
+<div class="layui-card">
+    <div class="layui-card-header card-title">api配置</div>
+    <div class="layui-card-body">
+        <div id="order-config-block" class="layui-fluid " style="margin-bottom: 50px">
+            <form class="layui-form" lay-filter="conf-from" action="">
+                <div class="layui-row"><!-- 一行数据-->
+                    <div class="order-info-box">
+                        <div class="layui-form-item">
+                            <label class="layui-form-mid">host：</label>
+                            <div class="layui-input-inline" style="width: 350px;">
+                                <input type="text" required lay-verify="required" name="host"
+                                       autocomplete="off"
+                                       class="layui-input config-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-info-box">
+                        <div class="layui-form-item">
+                            <label class="layui-form-mid">validateCode：</label>
+                            <div class="layui-input-inline" style="width: 350px;">
+                                <input type="text" required lay-verify="required" name="validateCode"
+                                       autocomplete="off" class="layui-input config-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-info-box">
+                        <div class="layui-form-item">
+                            <label class="layui-form-mid">cookies：</label>
+                            <div class="layui-input-inline" style="width: 350px;">
+                                <input type="text" required lay-verify="required" name="cookies"
+                                       autocomplete="off"
+                                       class="layui-input config-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div id="footer-center-block">
+                <div class="container" style="position: relative; top: 50px; left: 45%; width: 150px">
+                    <button id="all-commit" class="layui-btn">保存</button>
+                    <button id="all-cancel" class="layui-btn layui-btn-primary">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header card-title">监控证券配置</div>
+    <div class="layui-card-body">
+        <div id="stock-config-block">
+            <table class="layui-hide" id="stock-table" lay-filter="stock-table"></table>
+        </div>
+    </div>
+
+<script type="text/html" id="stock-table-tool-bar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<script th:inline="javascript">
+    layui.use(['layer', 'table', 'index', 'form'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table //表格
+        var util = layui.util;
+        var admin = layui.admin
+        var adminIndex = layui.index;
+
+        var configService = new ConfigService();
+        //api配置
+        var ApiConfigBlock = function () {
+            
+            this.init = function () {
+                //保存
+                $("#all-commit").on("click", function () {
+                    var orderConf =  form.val("conf-from");
+                    var result = configService.editSystemConfig(orderConf);
+                    if (result.success) {
+                        layer.alert('保存成功', {icon: 1});
+                    } else {
+                        layer.alert(result.msg, {icon: 2});
+                    }
+                })
+                this.load();
+            }
+            
+            this.load = function () {
+                var queryResult = configService.getSystemConfig().data;
+                console.log(queryResult);
+                form.val("conf-from", queryResult);
+            }
+
+        }
+        var apiConfigBlock = new ApiConfigBlock();
+        apiConfigBlock.init();
+
+        //证券配置
+        //执行一个 table 实例
+        var StockConfigBlock = function () {
+            
+            this.openAddWindow = function () {
+                var admIndex = layui.index;
+                admIndex.openTab({
+                    url:"/view/config/stockConfigDetail.html",
+                    title:"添加证券配置",
+                } );
+            }
+            
+            this.openUpdateWindow = function (item) {
+                var admIndex = layui.index;
+                admIndex.openTab({
+                    url:"/view/config/stockConfigDetail.html?id="+item.id,
+                    title:"编辑证券配置:"+item.name,
+                } );
+            }
+
+            this.openDelWindow = function (list) {
+                var that = this;
+                var idList = [];
+                if(list&&list.length>0){
+                    for (var index in list){
+                        idList.push(list[index].id);
+                    }
+                }
+                layer.open({
+                    type: 1
+                    , offset: "auto"
+                    , id: 'order-success-block' + "auto" //防止重复弹出
+                    , content: '<div style="padding: 20px 100px;">' + "是否确定删除配置？" + '</div>'
+                    , btn: ['是', '否']
+                    , btnAlign: 'c' //按钮居中
+                    , shade: 0 //不显示遮罩
+                    , yes: function () {
+                        layer.closeAll();
+                        var r = configService.deleteStockConfig({idList:idList});
+                        if (r.success) {
+                            layer.alert(r.errorCode, {icon: 1});
+                            that.reload();
+                        } else {
+                            layer.alert(r.errorMessage, {icon: 2});
+                        }
+                    }
+                    , no: function () {
+                        layer.closeAll();
+                    }
+                });
+            }
+
+            this.reload = function () {
+                table.reload("stock-table");
+            }
+
+            
+            
+            this.init = function () {
+                table.render({
+                    elem: '#stock-table'
+                    ,height: 420
+                    ,url: '/stockConfig/listStockConfig' //数据接口
+                    ,title: '证券配置表'
+                    ,toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                    ,totalRow: true //开启合计行
+                    ,defaultToolbar:[]
+                    ,even: true
+                    ,cols: [[ //表头
+                        {type: 'checkbox', fixed: 'left'}
+                        ,{field: 'id', title: 'id',hide:true,width:150}
+                        ,{field: 'code', title: '证券编号',width:150}
+                        ,{field: 'name', title: '证券名称', width:100}
+                        ,{field: 'price', title: '点位价格', width:100}
+                        ,{field: 'lowPrice', title: '买入价格', width: 100}
+                        ,{field: 'highPrice', title: '卖出价格', width:120}
+                        ,{field: 'count', title: '数量', width: 120}
+                        ,{field: 'enable', title: '是否开启自动交易', width:150}
+                        ,{field: 'createTime', title: '创建时间',hide:true,width:150}
+                        ,{field: 'updateTime', title: '更新时间', width: 100}
+                    ]]
+                    , parseData: function (res) { //res 即为原始返回的数据
+                        return {
+                            "code": res.errorCode == "OK" ? 0 : 1, //解析接口状态
+                            "msg": res.errorMessage, //解析提示文本
+                             page: true, //是否显示分页
+                             limit: 20, //每页默认显示的数量
+                            "count": res.data.total, //解析数据长度
+                            "data": res.data.list//解析数据列表
+                        };
+                    }
+                });
+                var that = this;
+                //监听头工具栏事件
+                table.on('toolbar(stock-table)', function(obj){
+                    var checkStatus = table.checkStatus(obj.config.id)
+                        ,data = checkStatus.data; //获取选中的数据
+                    switch(obj.event){
+                        case 'add':
+                            that.openAddWindow();
+                            break;
+                        case 'update':
+                            if(data.length === 0){
+                                layer.msg('请选择一行');
+                            } else if(data.length > 1){
+                                layer.msg('只能同时编辑一个');
+                            } else {
+                                that.openUpdateWindow(checkStatus.data[0]);
+                            }
+                            break;
+                        case 'delete':
+                            if(data.length === 0){
+                                layer.msg('请选择一行');
+                            } else {
+                                that.openDelWindow(checkStatus.data);
+                            }
+                            break;
+                    };
+                });
+            }
+
+
+        }
+        var stockConfigBlock = new StockConfigBlock();
+        stockConfigBlock.init();
+
+    });
+
+</script>
+</body>
+</html>

@@ -10,11 +10,13 @@ public interface StockConfigService {
 
     public PageInfo<StockConfigDo> listStockConfig(int pageIndex, int pageSize);
 
+    public StockConfigDo getItem(int id);
+
     public boolean add(StockConfigDo item);
 
     public boolean edit(StockConfigDo item);
 
-    public boolean delete(int id);
+    public boolean delete(List<String> idList);
 
 
 

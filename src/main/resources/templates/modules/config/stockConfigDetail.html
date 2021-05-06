@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="fullscreen-bg" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:replace="common/links :: common_header(~{::title},~{::style},~{})">
+    <title>证券配置详情</title>
+    <style>
+        html,body{
+            height: 100%;
+        }
+        #freight-detail-block{
+            height: 100%;
+        }
+        .hide {
+            display: none;
+        }
+        #provinces-transfer input{
+            width: auto !important;
+        }
+        #provinces-transfer .layui-transfer-box{
+            height: 500px !important;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: jquery"></div>
+<div th:replace="common/scripts :: service"></div>
+
+
+<div class="layui-card " id="freight-detail-block" >
+    <div class="layui-card-header card-title">证券配置</div>
+    <div class="layui-card-body">
+        <div class="layui-fluid ">
+            <div style="padding: 20px 50px">
+                <form class="layui-form" lay-filter="stock-detail-from" action="">
+                    <div class="layui-form-item hide">
+                        <label class="layui-form-label">id：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="id" autocomplete="off"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 606px">
+                        <label class="layui-form-label">证券编码：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="code" lay-verify="required" lay-reqtext="证券编码不能为空" autocomplete="off"
+                                   placeholder="请输入证券编码"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 606px">
+                        <label class="layui-form-label">证券名称：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="name" lay-verify="required" lay-reqtext="证券名称不能为空" autocomplete="off"
+                                   placeholder="请输入证券名称"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 606px">
+                        <label class="layui-form-label">点位价格：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="price" lay-verify="required" lay-reqtext="证券点位价格不能为空" autocomplete="off"
+                                   placeholder="请输入证券点位价格"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 606px">
+                        <label class="layui-form-label">数量：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="count" lay-verify="required" lay-reqtext="数量不能为空" autocomplete="off"
+                                   placeholder="请输入数量"
+                                   class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline" style="width: 200px">
+                            <label class="layui-form-label">是否开启自动交易：</label>
+                            <div class="layui-input-block">
+                                <select name="enable" lay-filter="type">
+                                    <option value="0">关闭</option>
+                                    <option value="1">开启</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="width:158px; position: relative;top:20px;left:18%;">
+                            <button class="layui-btn" lay-submit lay-filter="stock-detail-from">确定</button>
+                            <button type="button" name="cancel" class="layui-btn layui-btn-primary">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+
+    var confId = window.GetQueryStringValue("id");
+
+    layui.use(['layer', 'table', 'index', 'form'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table //表格
+        var util = layui.util;
+        var admin = layui.admin
+        var adminIndex = layui.index;
+
+    var configService =  new ConfigService();
+    var StockConfigDetail = function () {
+        this.init = function () {
+            if(confId){
+                var queryResult = configService.getItem({id:confId}).data;
+                form.val("stock-detail-from", queryResult);
+            }
+            //监听提交
+            form.on('submit(stock-detail-from)', function (data) {
+                var result = null;
+                if(confId){
+                    result = configService.editStockConfig(data.field);
+                }else {
+                    result = configService.addStockConfig(data.field);
+                }
+                if(result){
+                    if(result.success){
+                        layer.alert(result.errorCode, {icon: 1});
+                    }else {
+                        layer.alert(result.errorMessage, {icon: 2});
+                    }
+                }
+                return false;
+            });
+        }
+    }
+    var stockConfigDetail = new StockConfigDetail();
+    stockConfigDetail.init();
+
+
+    });
+
+
+</script>
+</body>
+</html>

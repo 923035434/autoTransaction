@@ -1,5 +1,7 @@
 package com.ll.autotransaction.dao.mode;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -10,9 +12,10 @@ import java.time.LocalDateTime;
 @TableName("stock_config")
 public class StockConfigDo {
 
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
-    private int enable;
+    private Integer enable;
 
     private String code;
 
@@ -24,7 +27,7 @@ public class StockConfigDo {
 
     private BigDecimal highPrice;
 
-    private int count;
+    private Integer count;
 
     private LocalDateTime createTime;
 

@@ -12,7 +12,10 @@ public interface UserService {
     public boolean addUser(String account, String password) throws Exception;
 
 
-    public boolean EditSystemConfig(int userId,SystemConfigInfo info) throws Exception;
+    public boolean editSystemConfig(int userId,SystemConfigInfo info) throws Exception;
+
+
+    public SystemConfigInfo getSystemConfig(int userId) throws Exception;
 
 
 }

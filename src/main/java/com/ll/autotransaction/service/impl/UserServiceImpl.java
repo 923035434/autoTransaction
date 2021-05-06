@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean EditSystemConfig(int userId, SystemConfigInfo info) throws Exception {
+    public boolean editSystemConfig(int userId, SystemConfigInfo info) throws Exception {
         var userInfo = userDao.selectById(userId);
         if(userInfo==null){
             throw new Exception("用户数据不存在");
@@ -86,5 +86,19 @@ public class UserServiceImpl implements UserService {
             userInfo.setEnableAutoTransaction(info.getEnableAutoTransaction());
         }
         return userDao.updateById(userInfo)>0;
+    }
+
+    @Override
+    public SystemConfigInfo getSystemConfig(int userId) throws Exception {
+        var result = new SystemConfigInfo();
+        var userInfo = userDao.selectById(userId);
+        if(userInfo==null){
+            throw new Exception("用户数据不存在");
+        }
+        result.setCookies(userInfo.getCookies());
+        result.setEnableAutoTransaction(userInfo.getEnableAutoTransaction());
+        result.setHost(userInfo.getHost());
+        result.setValidateCode(userInfo.getValidateCode());
+        return result;
     }
 }

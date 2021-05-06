@@ -137,7 +137,7 @@
                 </div>
                 <div class="layui-card-body">
                     <form class="layui-form" action="">
-                    <div class="layui-form-item">
+                    <div class="layui-form-item" id="api-state-block">
                         <label class="layui-form-label">接口连接：</label>
                         <span class="layui-badge layui-badge-green pull-letf hide">正常</span>
                         <span class="layui-badge layui-badge-orange pull-letf">断开</span>
@@ -145,7 +145,7 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">自动交易：</label>
                         <div class="layui-input-block">
-                            <input type="checkbox" name="close" lay-skin="switch" lay-filter="autoSwitch" lay-text="ON|OFF">
+                            <input type="checkbox" name="close" lay-skin="switch" lay-filter="autoSwitch" id="autoSwitch" lay-text="ON|OFF">
                         </div>
                     </div>
                     </form>
@@ -168,7 +168,7 @@
         <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
             <div class="console-link-block main-index pointer"
                  url-title="可用余额">
-                <div class="console-link-block-num"><span id="consultCount">0</span></div>
+                <div class="console-link-block-num"><span id="balance-num">0</span></div>
                 <div class="console-link-block-text">可用余额</div>
                 <i class="console-link-block-icon layui-icon layui-icon-survey"></i>
             </div>
@@ -179,8 +179,8 @@
                     今日收益<span class="layui-badge layui-badge-green pull-right">日</span>
                 </div>
                 <div class="layui-card-body">
-                    <p id="todayMemberCount" class="lay-big-font">0</p>
-                    <p>总收益<span class="pull-right" id="memberCount">0</span></p>
+                    <p id="todayProfit-num" class="lay-big-font">0</p>
+                    <p>总收益<span class="pull-right" id="allProfit-num">0</span></p>
                 </div>
             </div>
         </div>
@@ -213,8 +213,11 @@
 </div>
 
 <div th:replace="common/scripts :: common"></div>
+<div th:replace="common/scripts :: jquery"></div>
 <div th:replace="common/scripts :: echarts"></div>
+<div th:replace="common/scripts :: service"></div>
 <script>
+
     layui.use(['layer', 'table', 'index', 'form'], function () {
         var $ = layui.jquery;
         var layer = layui.layer;
@@ -240,6 +243,40 @@
             }
             adminIndex.openTab(tab);
         })
+
+        var homeService = new HomeService();
+
+        var HomeResultBlock = function () {
+            this.load = function () {
+                var queryResult = homeService.getOrderDetail().data;
+                console.log(queryResult);
+                if(queryResult){
+                    //api请求是否正常
+                    if(queryResult.apiState){
+                        $("#api-state-block .layui-badge-green").removeClass("hide");
+                        $("#api-state-block .layui-badge-orange").addClass("hide");
+                    }else {
+                        $("#api-state-block .layui-badge-green").addClass("hide");
+                        $("#api-state-block .layui-badge-orange").removeClass("hide");
+                    }
+                    //是否开启自动交易
+                    if(queryResult.enableAutoTransaction){
+                        $("#autoSwitch").attr("checked",queryResult.enableAutoTransaction);
+                    }else {
+                        $("#autoSwitch").removeAttr("checked");
+                    }
+                    //设置值
+                    $("#balance-num").text(queryResult.balance);
+                    $("#todayProfit-num").text(queryResult.todayProfit);
+                    $("#allProfit-num").text(queryResult.allProfit);
+
+
+                }
+            }
+        }
+        var homeResultBlock = new HomeResultBlock();
+        homeResultBlock.load();
+
 
     });
 </script>
