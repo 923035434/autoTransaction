@@ -61,28 +61,45 @@ public class DfcfAutoTransactionJob {
                 }
                 var todayDealList = brokerageService.getTodayHisDealData();
                 if(todayDealList.size()>0){
-                    var deleteList = new ArrayList<ApplyDataInfo>();
+                    var newDealList = new ArrayList<ApplyDataInfo>();
                     for (var dealItem : todayDealList){
                         for (var applyItem : BrokerageConfig.applyDataInfos){
-                            //有新的成交
+                            //判断是否有新的成交
                             if(dealItem.getApplyCode().equals(applyItem.getApplyCode())){
-                                if(dealItem.getApplyType().equals("证券买入")){
-                                    this.removeApplyItem(dealItem.getCode(),"证券卖出");
-
-                                }else {
-                                    this.removeApplyItem(dealItem.getCode(),"证券买入");
-
-                                }
-                                deleteList.add(applyItem);
+                                newDealList.add(applyItem);
                             }
                         }
                     }
-                    BrokerageConfig.applyDataInfos.removeAll(deleteList);
+                    //处理成交结果
+                    if(newDealList.size()>0){
+                        this.newDealEvent(newDealList);
+                    }
                 }
             }
 
         }
     }
+
+
+    private void newDealEvent(List<ApplyDataInfo> newDealList){
+        for (var dealItem:newDealList){
+            //先撤单
+            if(dealItem.getApplyType().equals("证券买入")){
+                this.removeApplyItem(dealItem.getCode(),"证券卖出");
+            }else {
+                this.removeApplyItem(dealItem.getCode(),"证券买入");
+            }
+            //重置价格点位
+            stockConfigService.editPrice(dealItem.getCode(),dealItem.getPrice());
+            //
+        }
+        if(newDealList.size()>0){
+            BrokerageConfig.applyDataInfos.removeAll(newDealList);
+        }
+    }
+
+
+
 
 
     private void removeApplyItem(String code,String type){

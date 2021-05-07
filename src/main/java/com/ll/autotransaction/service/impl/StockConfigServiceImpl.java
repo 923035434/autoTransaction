@@ -80,6 +80,21 @@ public class StockConfigServiceImpl implements StockConfigService {
     }
 
     @Override
+    public boolean editPrice(String code, BigDecimal Price) {
+        var wrapper = new QueryWrapper<StockConfigDo>().lambda().eq(StockConfigDo::getCode,code);
+        var queryResult = stockConfigDao.selectList(wrapper);
+        if(queryResult.size()>0){
+            var item = queryResult.get(0);
+            item.setPrice(Price);
+            item.setLowPrice(PriceUtil.getLowPrice(item.getPrice()));
+            item.setHighPrice(PriceUtil.getHighPrice(item.getPrice()));
+            item.setUpdateTime(null);
+            return stockConfigDao.updateById(item)>0;
+        }
+        return false;
+    }
+
+    @Override
     public boolean delete(List<String> idList) {
         return stockConfigDao.deleteBatchIds(idList)>0;
     }
