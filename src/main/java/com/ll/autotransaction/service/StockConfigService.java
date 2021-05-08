@@ -20,6 +20,8 @@ public interface StockConfigService {
 
     public boolean edit(StockConfigDo item);
 
+    public StockConfigDo getItemByCode(String code);
+
     public boolean editPrice(String code, BigDecimal Price);
 
     public boolean delete(List<String> idList);

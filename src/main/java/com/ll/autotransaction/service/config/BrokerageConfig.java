@@ -1,6 +1,7 @@
 package com.ll.autotransaction.service.config;
 
 import com.ll.autotransaction.service.model.ApplyDataInfo;
+import lombok.var;
 import org.omg.CORBA.PUBLIC_MEMBER;
 
 import java.math.BigDecimal;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BrokerageConfig {
 
@@ -31,6 +33,21 @@ public class BrokerageConfig {
     public static LocalDate pendingOrderDate = LocalDate.now().plusDays(-1);
 
     public static List<ApplyDataInfo> applyDataInfos = new ArrayList<>();
+
+
+    public static void resetConfig(){
+        windUpDate = LocalDate.now().plusDays(-1);
+        pendingOrderDate = LocalDate.now().plusDays(-1);
+        applyDataInfos = new ArrayList<>();
+    }
+
+
+    public static void removeApplyDataInfoForCode(String code){
+        var filterList = applyDataInfos.stream().filter(a->a.getCode().equals(code)).collect(Collectors.toList());
+        if(filterList.size()>0){
+            applyDataInfos.removeAll(filterList);
+        }
+    }
 
 
 

@@ -9,9 +9,11 @@ import com.ll.autotransaction.dao.mode.StockConfigDo;
 import com.ll.autotransaction.service.DealLogService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Service
 public class DealLogServiceImpl implements DealLogService {
 
     @Autowired

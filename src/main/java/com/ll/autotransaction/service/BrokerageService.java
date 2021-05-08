@@ -50,6 +50,14 @@ public interface BrokerageService {
      */
     public boolean revokeOrders();
 
+
+    /**
+     * 根据证券编码撤单
+     * @return
+     */
+    public boolean revokeOrdersByCode(List<String> codeList);
+
+
     /**
      * 查看当前持仓
      */

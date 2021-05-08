@@ -1,12 +1,15 @@
 package com.ll.autotransaction.job;
 
+import com.ll.autotransaction.dao.mode.DealLogDo;
 import com.ll.autotransaction.dao.mode.StockConfigDo;
 import com.ll.autotransaction.service.BrokerageService;
+import com.ll.autotransaction.service.DealLogService;
 import com.ll.autotransaction.service.StockConfigService;
 import com.ll.autotransaction.service.UserService;
 import com.ll.autotransaction.service.config.BrokerageConfig;
 import com.ll.autotransaction.service.model.ApplyDataInfo;
 import com.ll.autotransaction.service.model.TransactionParam;
+import com.ll.autotransaction.util.EmailUtil;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +37,26 @@ public class DfcfAutoTransactionJob {
     @Autowired
     StockConfigService stockConfigService;
 
+    @Autowired
+    DealLogService dealLogService;
 
-//    @Scheduled(cron= "*/2 * * * * ?") //每2秒运行一次
+
+    @Autowired
+    EmailUtil emailUtil;
+
+    //    @Scheduled(cron= "*/4 * * * * ?") //每4秒运行一次
+    public void autoTransaction(){
+        try{
+            this.doJob();
+        }catch (Exception e){
+            //一旦报错即刻停止
+            BrokerageConfig.enableAutoTransaction=false;
+            emailUtil.sent("出错了",e.toString());
+        }
+    }
+
+
+
     public void doJob(){
         this.updateConfig();
         if(BrokerageConfig.enableAutoTransaction&&isTransactionTime()){
@@ -44,19 +66,23 @@ public class DfcfAutoTransactionJob {
                     brokerageService.revokeOrders();
                     BrokerageConfig.applyDataInfos = new ArrayList<>();
                     BrokerageConfig.windUpDate = LocalDate.now();
+                    emailUtil.sent("撤单提示","收盘撤单成功");
                 }
             }else {
                 //正常交易时间段
                 //判断是否需要挂单
                 if(LocalDate.now().isAfter(BrokerageConfig.pendingOrderDate)){
-                    //先撤单
-                    brokerageService.revokeOrders();
-                    BrokerageConfig.applyDataInfos = new ArrayList<>();
                     var enableList = stockConfigService.listEnable();
+                    var enableCodeList = enableList.stream().map(e->e.getCode()).collect(Collectors.toList());
+                    //先撤单
+                    brokerageService.revokeOrdersByCode(enableCodeList);
+                    BrokerageConfig.applyDataInfos = new ArrayList<>();
+                    //后续需要添加判断是否大跌大涨的挂单。
                     //挂单
                     if(enableList.size()>0){
                         this.pendingOrders(enableList);
                     }
+                    emailUtil.sent("已根据配置挂单",enableList.toString());
                     BrokerageConfig.pendingOrderDate = LocalDate.now();
                 }
                 var todayDealList = brokerageService.getTodayHisDealData();
@@ -82,6 +108,7 @@ public class DfcfAutoTransactionJob {
 
 
     private void newDealEvent(List<ApplyDataInfo> newDealList){
+        var stockConfigList = new ArrayList<StockConfigDo>();
         for (var dealItem:newDealList){
             //先撤单
             if(dealItem.getApplyType().equals("证券买入")){
@@ -89,13 +116,28 @@ public class DfcfAutoTransactionJob {
             }else {
                 this.removeApplyItem(dealItem.getCode(),"证券买入");
             }
+            //移除本地缓存记录
+            BrokerageConfig.removeApplyDataInfoForCode(dealItem.getCode());
             //重置价格点位
             stockConfigService.editPrice(dealItem.getCode(),dealItem.getPrice());
-            //
+            //记录成交日志
+            var dealLog = new DealLogDo(){{
+                setCode(dealItem.getCode());
+                setName(dealItem.getName());
+                setPrice(dealItem.getPrice());
+                setCount(dealItem.getCount());
+                setType(dealItem.getApplyType().equals("证券买入")?0:1);
+                setCreateTime(LocalDateTime.now());
+            }};
+            dealLogService.add(dealLog);
+            //重新挂单
+            var stockConfig = stockConfigService.getItemByCode(dealItem.getCode());
+            stockConfigList.add(stockConfig);
+            //发送短信提示
+            emailUtil.sent(String.format("%s：%s",dealItem.getName(),dealItem.getApplyType()),String.format("价格：%s",dealItem.getPrice()));
         }
-        if(newDealList.size()>0){
-            BrokerageConfig.applyDataInfos.removeAll(newDealList);
-        }
+        this.pendingOrders(stockConfigList);
+
     }
 
 
