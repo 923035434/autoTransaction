@@ -57,7 +57,7 @@ public class DfcfAutoTransactionJob {
 
 
 
-    public void doJob(){
+    public void doJob() throws Exception {
         this.updateConfig();
         if(BrokerageConfig.enableAutoTransaction&&isTransactionTime()){
             if(isWindUp()){
@@ -107,7 +107,7 @@ public class DfcfAutoTransactionJob {
     }
 
 
-    private void newDealEvent(List<ApplyDataInfo> newDealList){
+    private void newDealEvent(List<ApplyDataInfo> newDealList) throws Exception {
         var stockConfigList = new ArrayList<StockConfigDo>();
         for (var dealItem:newDealList){
             //先撤单
@@ -154,7 +154,7 @@ public class DfcfAutoTransactionJob {
     }
 
 
-    private void pendingOrders(List<StockConfigDo> enableList){
+    private void pendingOrders(List<StockConfigDo> enableList) throws Exception {
         var applyCodeList = new ArrayList<String>();
         for (var enableItem : enableList){
             var param = new TransactionParam(){{

@@ -101,7 +101,12 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
     }
 
     @Override
-    public String buy(TransactionParam param) {
+    public String buy(TransactionParam param) throws Exception {
+        var balance = this.getBalance();
+        var amount = param.getPrice().multiply(BigDecimal.valueOf(param.getCount()));
+        if(amount.compareTo(balance)>0){
+            throw new Exception("资金不足");
+        }
         var result = "";
         var headers = this.getRequestHeader();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
@@ -173,6 +178,21 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
         if(queryResult.size()>0){
             for (var item :queryResult){
                 this.revokeOrders(item.getApplyCode());
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean revokeOrdersByCode(List<String> codeList) {
+        var queryResult = this.getTodayOrdersData(null);
+        if(queryResult.size()>0){
+            for (var code:codeList){
+                for (var item :queryResult){
+                    if(code.equals(item.getCode())){
+                        this.revokeOrders(item.getApplyCode());
+                    }
+                }
             }
         }
         return true;
