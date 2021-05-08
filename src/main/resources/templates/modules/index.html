@@ -161,6 +161,7 @@
                     <div class="layui-btn-container">
                         <button type="button" class="layui-btn layui-btn-primary">自动挂单</button>
                         <button type="button" class="layui-btn layui-btn-primary">一键撤单</button>
+                        <button type="button" class="layui-btn layui-btn-primary">查看job配置</button>
                     </div>
                 </div>
             </div>
@@ -225,12 +226,21 @@
         var util = layui.util;
         var admin = layui.admin
         var adminIndex = layui.index;
+        var configService = new ConfigService();
+        var homeService = new HomeService();
         //监听指定开关
         form.on('switch(autoSwitch)', function(data){
-            layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
-                offset: '6px'
+            // layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+            //     offset: '6px'
+            // });
+            var queryResult = configService.editSystemConfig({
+                enableAutoTransaction:this.checked?1:0
             });
-            layer.tips(data)
+            if(queryResult.success){
+                layer.msg('已'+ (this.checked ? '开启' : '关闭')+'自动交易', {
+                    offset: '6px'
+                });
+            }
         });
 
         $('.main-index,.console-app-group').click(function () {
@@ -244,7 +254,6 @@
             adminIndex.openTab(tab);
         })
 
-        var homeService = new HomeService();
 
         var HomeResultBlock = function () {
             this.load = function () {
@@ -277,6 +286,15 @@
         var homeResultBlock = new HomeResultBlock();
         homeResultBlock.load();
 
+
+        var ProcessBtnBlock = function () {
+            this.init = function () {
+                var btnList = $(".layui-btn-container button");
+                console.log(btnList);
+            }
+        }
+        var processBtnBlock = new ProcessBtnBlock();
+        processBtnBlock.init();
 
     });
 </script>

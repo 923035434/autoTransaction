@@ -35,4 +35,11 @@ function HomeService() {
 
 
 
+    //获取当前job配置
+    this.getOrderDetail = function (param){
+        return this.ajaxNativeJsonBase("/home/getCurrentJobConfig",param) ;
+    }
+
+
+
 }

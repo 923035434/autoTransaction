@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ll.autotransaction.dao.UserDao;
 import com.ll.autotransaction.dao.mode.UserDo;
 import com.ll.autotransaction.service.UserService;
+import com.ll.autotransaction.service.config.BrokerageConfig;
 import com.ll.autotransaction.service.model.SystemConfigInfo;
 import com.ll.autotransaction.service.model.UserInfo;
 import com.ll.autotransaction.util.MD5Util;
@@ -83,6 +84,8 @@ public class UserServiceImpl implements UserService {
             userInfo.setValidateCode(info.getValidateCode());
         }
         if(info.getEnableAutoTransaction()!=null){
+            BrokerageConfig.enableAutoTransaction = info.getEnableAutoTransaction()==1;
+            BrokerageConfig.resetConfig();
             userInfo.setEnableAutoTransaction(info.getEnableAutoTransaction());
         }
         return userDao.updateById(userInfo)>0;

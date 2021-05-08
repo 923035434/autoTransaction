@@ -2,9 +2,11 @@ package com.ll.autotransaction.controller;
 
 import com.ll.autotransaction.controller.model.CommonResult;
 import com.ll.autotransaction.controller.model.vo.HomeResultVO;
+import com.ll.autotransaction.controller.model.vo.JobConfigVO;
 import com.ll.autotransaction.controller.security.UserPrincipal;
 import com.ll.autotransaction.service.BrokerageService;
 import com.ll.autotransaction.service.UserService;
+import com.ll.autotransaction.service.config.BrokerageConfig;
 import com.ll.autotransaction.service.model.SystemConfigInfo;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,21 @@ public class HomeController extends BaseController {
     @PostMapping("/getSystemConfig")
     public CommonResult<SystemConfigInfo> getSystemConfig() throws Exception {
         var result = userService.getSystemConfig(getUserId());
+        return CommonResult.success(result);
+    }
+
+
+    @PostMapping("/getCurrentJobConfig")
+    public CommonResult<JobConfigVO> getCurrentJobConfig(){
+        var result = new JobConfigVO(){{
+            setDfcfCookies(BrokerageConfig.dfcfCookies);
+            setDfcfHost(BrokerageConfig.dfcfHost);
+            setDfcfValidateCode(BrokerageConfig.dfcfValidateCode);
+            setEnableAutoTransaction(BrokerageConfig.enableAutoTransaction);
+            setWindUpDate(BrokerageConfig.windUpDate);
+            setPendingOrderDate(BrokerageConfig.pendingOrderDate);
+            setApplyDataInfos(BrokerageConfig.applyDataInfos);
+        }};
         return CommonResult.success(result);
     }
 
