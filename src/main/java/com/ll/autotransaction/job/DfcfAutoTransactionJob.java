@@ -44,13 +44,14 @@ public class DfcfAutoTransactionJob {
     @Autowired
     EmailUtil emailUtil;
 
-    //    @Scheduled(cron= "*/4 * * * * ?") //每4秒运行一次
-    public void autoTransaction(){
+    @Scheduled(cron= "*/4 * * * * ?") //每4秒运行一次
+    public void autoTransaction() throws Exception {
         try{
             this.doJob();
         }catch (Exception e){
             //一旦报错即刻停止
             BrokerageConfig.enableAutoTransaction=false;
+            userService.setEnableAutoTransaction(false);
             emailUtil.sent("出错了",e.toString());
         }
     }
@@ -58,7 +59,7 @@ public class DfcfAutoTransactionJob {
 
 
     public void doJob() throws Exception {
-        this.updateConfig();
+        userService.updateConfig();
         if(BrokerageConfig.enableAutoTransaction&&isTransactionTime()){
             if(isWindUp()){
                 if(LocalDate.now().isAfter(BrokerageConfig.windUpDate)){
@@ -180,14 +181,7 @@ public class DfcfAutoTransactionJob {
     }
 
 
-    private void updateConfig(){
-        var userInfo = userService.getUserByAccount("13226546881");
-        BrokerageConfig.dfcfCookies = userInfo.getCookies();
-        BrokerageConfig.dfcfValidateCode = userInfo.getValidateCode();
-        BrokerageConfig.dfcfHost = userInfo.getHost();
-        BrokerageConfig.enableAutoTransaction = userInfo.getEnableAutoTransaction()==1;
 
-    }
 
 
 
@@ -216,7 +210,7 @@ public class DfcfAutoTransactionJob {
                 result = true;
             }
         }
-        return result;
+        return true;
     }
 
 

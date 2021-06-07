@@ -104,4 +104,23 @@ public class UserServiceImpl implements UserService {
         result.setValidateCode(userInfo.getValidateCode());
         return result;
     }
+
+    @Override
+    public void updateConfig(){
+        var userInfo = this.getUserByAccount("13226546881");
+        BrokerageConfig.dfcfCookies = userInfo.getCookies();
+        BrokerageConfig.dfcfValidateCode = userInfo.getValidateCode();
+        BrokerageConfig.dfcfHost = userInfo.getHost();
+        BrokerageConfig.enableAutoTransaction = userInfo.getEnableAutoTransaction()==1;
+
+    }
+
+    @Override
+    public void setEnableAutoTransaction(boolean enable) throws Exception {
+        var userInfo = this.getUserByAccount("13226546881");
+        var configInfo = new SystemConfigInfo(){{
+            setEnableAutoTransaction(enable?1:0);
+        }};
+        this.editSystemConfig(userInfo.getId(),configInfo);
+    }
 }

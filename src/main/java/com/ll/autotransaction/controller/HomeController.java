@@ -28,6 +28,7 @@ public class HomeController extends BaseController {
 
     @PostMapping("/getHomeResult")
     public CommonResult<HomeResultVO> getHomeResult() {
+        userService.updateConfig();
         var result = new HomeResultVO();
         var accountInfo = brokerageService.getStockAccountInfo();
         result.setApiState(true);

@@ -18,4 +18,9 @@ public interface UserService {
     public SystemConfigInfo getSystemConfig(int userId) throws Exception;
 
 
+    public void updateConfig();
+
+
+    public void setEnableAutoTransaction(boolean enable) throws Exception;
+
 }

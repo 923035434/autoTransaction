@@ -28,7 +28,7 @@ function HomeService() {
 
 
     //获取订单数据
-    this.getOrderDetail = function (param){
+    this.getHomeResult = function (param){
         return this.ajaxNativeJsonBase("/home/getHomeResult",param) ;
     }
 
@@ -36,7 +36,7 @@ function HomeService() {
 
 
     //获取当前job配置
-    this.getOrderDetail = function (param){
+    this.getCurrentJobConfig = function (param){
         return this.ajaxNativeJsonBase("/home/getCurrentJobConfig",param) ;
     }
 
