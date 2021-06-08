@@ -52,7 +52,7 @@ public class DfcfAutoTransactionJob {
             //一旦报错即刻停止
             BrokerageConfig.enableAutoTransaction=false;
             userService.setEnableAutoTransaction(false);
-            emailUtil.sent("出错了",e.toString());
+            emailUtil.sent("出错了",e.getMessage()+"/n"+e.getStackTrace().toString());
         }
     }
 
