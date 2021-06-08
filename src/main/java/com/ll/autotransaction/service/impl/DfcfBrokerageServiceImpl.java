@@ -140,7 +140,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
         map.add("amount",param.getCount().toString());
         map.add("tradeType","S");
         map.add("zqmc",param.getName());
-        map.add("gddm","A249723551");
+//        map.add("gddm","0246918803");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
         var url = this.urlAddValidateCode(BrokerageConfig.dfcfHost+"/Trade/SubmitTradeV2");
         ResponseEntity<String> response = restTemplate.postForEntity(

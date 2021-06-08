@@ -128,7 +128,6 @@ public class DfcfAutoTransactionJob {
                 setPrice(dealItem.getPrice());
                 setCount(dealItem.getCount());
                 setType(dealItem.getApplyType().equals("证券买入")?0:1);
-                setCreateTime(LocalDateTime.now());
             }};
             dealLogService.add(dealLog);
             //重新挂单
@@ -210,7 +209,7 @@ public class DfcfAutoTransactionJob {
                 result = true;
             }
         }
-        return true;
+        return result;
     }
 
 

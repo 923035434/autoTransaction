@@ -1,5 +1,6 @@
 package com.ll.autotransaction.dao.mode;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @TableName("deal_log")
 public class DealLogDo {
 
-    private Integer id;
+    private int id;
 
     private String code;
 
