@@ -8,6 +8,7 @@ import com.ll.autotransaction.service.StockConfigService;
 import com.ll.autotransaction.service.UserService;
 import com.ll.autotransaction.service.config.BrokerageConfig;
 import com.ll.autotransaction.service.model.ApplyDataInfo;
+import com.ll.autotransaction.service.model.DealInfo;
 import com.ll.autotransaction.service.model.TransactionParam;
 import com.ll.autotransaction.util.EmailUtil;
 import lombok.var;
@@ -86,9 +87,18 @@ public class DfcfAutoTransactionJob {
                     emailUtil.sent("已根据配置挂单",enableList.toString());
                     BrokerageConfig.pendingOrderDate = LocalDate.now();
                 }
+//                BrokerageConfig.applyDataInfos.add(new ApplyDataInfo(){{
+//                    setApplyCode("790938");
+//                    setCount(100);
+//                    setName("同兴达");
+//                    setCode("002845");
+//                    setApplyType("证券买入");
+//                    setPrice(BigDecimal.valueOf(70.300));
+//                    setApplyTime(LocalDateTime.now());
+//                }});
                 var todayDealList = brokerageService.getTodayHisDealData();
                 if(todayDealList.size()>0){
-                    var newDealList = new ArrayList<ApplyDataInfo>();
+                    var newDealList = new ArrayList<DealInfo>();
                     for (var dealItem : todayDealList){
                         for (var applyItem : BrokerageConfig.applyDataInfos){
                             //判断是否有新的成交
@@ -98,7 +108,7 @@ public class DfcfAutoTransactionJob {
                                     var containApply = containsApply.get(0);
                                     containApply.setCount(containApply.getCount()+applyItem.getCount());
                                 }else {
-                                    newDealList.add(applyItem);
+                                    newDealList.add(dealItem);
                                 }
                             }
                         }
@@ -114,7 +124,7 @@ public class DfcfAutoTransactionJob {
     }
 
 
-    private void newDealEvent(List<ApplyDataInfo> newDealList) throws Exception {
+    private void newDealEvent(List<DealInfo> newDealList) throws Exception {
         var stockConfigList = new ArrayList<StockConfigDo>();
         for (var dealItem:newDealList){
             var stockItem = stockConfigService.getItemByCode(dealItem.getCode());
@@ -154,7 +164,9 @@ public class DfcfAutoTransactionJob {
             //发送短信提示
             emailUtil.sent(String.format("%s：%s",dealItem.getName(),dealItem.getApplyType()),String.format("价格：%s",dealItem.getPrice()));
         }
-        this.pendingOrders(stockConfigList);
+        if(stockConfigList.size()>0){
+            this.pendingOrders(stockConfigList);
+        }
 
     }
 

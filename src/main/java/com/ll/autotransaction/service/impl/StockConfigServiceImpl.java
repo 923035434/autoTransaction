@@ -76,7 +76,7 @@ public class StockConfigServiceImpl implements StockConfigService {
             queryResult.setEnable(item.getEnable());
         }
         queryResult.setUpdateTime(null);
-        return stockConfigDao.updateById(item)>0;
+        return stockConfigDao.updateById(queryResult)>0;
     }
 
     @Override
