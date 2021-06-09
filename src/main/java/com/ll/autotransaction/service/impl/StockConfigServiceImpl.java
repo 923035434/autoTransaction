@@ -81,7 +81,9 @@ public class StockConfigServiceImpl implements StockConfigService {
 
     @Override
     public StockConfigDo getItemByCode(String code) {
-        var wrapper = new QueryWrapper<StockConfigDo>().lambda().eq(StockConfigDo::getCode,code);
+        var wrapper = new QueryWrapper<StockConfigDo>().lambda()
+                .eq(StockConfigDo::getCode,code)
+                .eq(StockConfigDo::getEnable,1);
         var queryResult = stockConfigDao.selectList(wrapper);
         if(queryResult.size()>0){
             return queryResult.get(0);

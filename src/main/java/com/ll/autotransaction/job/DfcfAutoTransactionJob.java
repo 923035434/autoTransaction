@@ -93,7 +93,13 @@ public class DfcfAutoTransactionJob {
                         for (var applyItem : BrokerageConfig.applyDataInfos){
                             //判断是否有新的成交
                             if(dealItem.getApplyCode().equals(applyItem.getApplyCode())){
-                                newDealList.add(applyItem);
+                                var containsApply = newDealList.stream().filter(n->n.getApplyCode().equals(applyItem.getApplyCode())).collect(Collectors.toList());
+                                if(containsApply!=null&&containsApply.size()>0){
+                                    var containApply = containsApply.get(0);
+                                    containApply.setCount(containApply.getCount()+applyItem.getCount());
+                                }else {
+                                    newDealList.add(applyItem);
+                                }
                             }
                         }
                     }
@@ -111,6 +117,17 @@ public class DfcfAutoTransactionJob {
     private void newDealEvent(List<ApplyDataInfo> newDealList) throws Exception {
         var stockConfigList = new ArrayList<StockConfigDo>();
         for (var dealItem:newDealList){
+            var stockItem = stockConfigService.getItemByCode(dealItem.getCode());
+            var filterList = BrokerageConfig.applyDataInfos.stream().filter(a->a.getApplyCode().equals(dealItem.getApplyCode())).collect(Collectors.toList());
+            ApplyDataInfo cacheData = null;
+            if(stockItem!=null&&filterList.size()>0){
+                cacheData = filterList.get(0);
+                if(dealItem.getCount()<cacheData.getCount()){
+                    continue;
+                }
+            }else if(filterList.size()>0){
+                continue;
+            }
             //先撤单
             if(dealItem.getApplyType().equals("证券买入")){
                 this.removeApplyItem(dealItem.getCode(),"证券卖出");
@@ -119,8 +136,9 @@ public class DfcfAutoTransactionJob {
             }
             //移除本地缓存记录
             BrokerageConfig.removeApplyDataInfoForCode(dealItem.getCode());
+            var nowPrice = cacheData.getPrice();
             //重置价格点位
-            stockConfigService.editPrice(dealItem.getCode(),dealItem.getPrice());
+            stockConfigService.editPrice(dealItem.getCode(),nowPrice);
             //记录成交日志
             var dealLog = new DealLogDo(){{
                 setCode(dealItem.getCode());
