@@ -122,6 +122,10 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
                 request, String.class);
         if(response.getStatusCode().equals(HttpStatus.OK)){
             var jsonObj = JSONObject.parseObject(response.getBody());
+            var state = jsonObj.getString("Status");
+            if(state.equals("-1")){
+                throw new Exception(response.getBody());
+            }
             var data = jsonObj.getJSONArray("Data");
             var queryResult = JSONObject.parseObject(data.get(0).toString());
             var applyCode = queryResult.getString("Wtbh");
@@ -131,7 +135,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
     }
 
     @Override
-    public String sell(TransactionParam param) {
+    public String sell(TransactionParam param) throws Exception {
         var result = "";
         var headers = this.getRequestHeader();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
@@ -148,6 +152,10 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
                 request, String.class);
         if(response.getStatusCode().equals(HttpStatus.OK)){
             var jsonObj = JSONObject.parseObject(response.getBody());
+            var state = jsonObj.getString("Status");
+            if(state.equals("-1")){
+                throw new Exception(response.getBody());
+            }
             var data = jsonObj.getJSONArray("Data");
             var queryResult = JSONObject.parseObject(data.get(0).toString());
             var applyCode = queryResult.getString("Wtbh");
@@ -327,7 +335,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
                 item.setCode(dataJsonObj.getString("Zqdm"));
                 item.setName(dataJsonObj.getString("Zqmc"));
                 item.setApplyType(dataJsonObj.getString("Mmsm"));
-                item.setCount(dataJsonObj.getInteger("Wtsl"));
+                item.setCount(dataJsonObj.getInteger("Cjsl"));
                 item.setPrice(dataJsonObj.getBigDecimal("Wtjg"));
                 result.add(item);
             }

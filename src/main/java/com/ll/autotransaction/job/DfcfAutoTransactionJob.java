@@ -2,16 +2,16 @@ package com.ll.autotransaction.job;
 
 import com.ll.autotransaction.dao.mode.DealLogDo;
 import com.ll.autotransaction.dao.mode.StockConfigDo;
-import com.ll.autotransaction.service.BrokerageService;
-import com.ll.autotransaction.service.DealLogService;
-import com.ll.autotransaction.service.StockConfigService;
-import com.ll.autotransaction.service.UserService;
+import com.ll.autotransaction.service.*;
 import com.ll.autotransaction.service.config.BrokerageConfig;
 import com.ll.autotransaction.service.model.ApplyDataInfo;
 import com.ll.autotransaction.service.model.DealInfo;
+import com.ll.autotransaction.service.model.StockApplyConfig;
 import com.ll.autotransaction.service.model.TransactionParam;
 import com.ll.autotransaction.util.EmailUtil;
+import com.ll.autotransaction.util.PriceUtil;
 import lombok.var;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -40,6 +40,9 @@ public class DfcfAutoTransactionJob {
 
     @Autowired
     DealLogService dealLogService;
+
+    @Autowired
+    PriceService priceService;
 
 
     @Autowired
@@ -79,23 +82,15 @@ public class DfcfAutoTransactionJob {
                     //先撤单
                     brokerageService.revokeOrdersByCode(enableCodeList);
                     BrokerageConfig.applyDataInfos = new ArrayList<>();
-                    //后续需要添加判断是否大跌大涨的挂单。
                     //挂单
                     if(enableList.size()>0){
-                        this.pendingOrders(enableList);
+                        //判断开盘是否有大涨大跌
+                        var calEnableList = this.CalPrice(enableList);
+                        this.pendingOrders(calEnableList);
                     }
                     emailUtil.sent("已根据配置挂单",enableList.toString());
                     BrokerageConfig.pendingOrderDate = LocalDate.now();
                 }
-//                BrokerageConfig.applyDataInfos.add(new ApplyDataInfo(){{
-//                    setApplyCode("790938");
-//                    setCount(100);
-//                    setName("同兴达");
-//                    setCode("002845");
-//                    setApplyType("证券买入");
-//                    setPrice(BigDecimal.valueOf(70.300));
-//                    setApplyTime(LocalDateTime.now());
-//                }});
                 var todayDealList = brokerageService.getTodayHisDealData();
                 if(todayDealList.size()>0){
                     var newDealList = new ArrayList<DealInfo>();
@@ -122,6 +117,7 @@ public class DfcfAutoTransactionJob {
 
         }
     }
+
 
 
     private void newDealEvent(List<DealInfo> newDealList) throws Exception {
@@ -165,15 +161,52 @@ public class DfcfAutoTransactionJob {
             emailUtil.sent(String.format("%s：%s",dealItem.getName(),dealItem.getApplyType()),String.format("价格：%s",dealItem.getPrice()));
         }
         if(stockConfigList.size()>0){
-            this.pendingOrders(stockConfigList);
+            var calEnableList = this.CalPrice(stockConfigList);
+            this.pendingOrders(calEnableList);
         }
 
     }
 
 
+    /**
+     * 开盘判断是否有过多高开或者过多低开的情况
+     * @param list
+     * @return
+     */
+    private List<StockApplyConfig> CalPrice(List<StockConfigDo> list){
+        var result = new ArrayList<StockApplyConfig>();
+        for (var item : list){
+            var resultItem = new StockApplyConfig();
+            BeanUtils.copyProperties(item,resultItem);
+            resultItem.setBuyCount(item.getCount());
+            resultItem.setSellCount(item.getCount());
+            var nowPrice = priceService.getLastPrice(resultItem.getCode());
+            var oneCount = item.getCount();
+            //如果比下一次买入的价格还低
+            var nextBuyPrice = PriceUtil.getLowPrice(resultItem.getLowPrice());
+            while (nowPrice.compareTo(nextBuyPrice)<=0){
+                resultItem.setLowPrice(nextBuyPrice);
+                resultItem.setBuyCount(resultItem.getBuyCount()+oneCount);
+                nextBuyPrice = PriceUtil.getLowPrice(resultItem.getLowPrice());
+            }
+            var nextSellPrice = PriceUtil.getHighPrice(resultItem.getHighPrice());
+            while (nowPrice.compareTo(nextSellPrice)>=0){
+                resultItem.setHighPrice(nextSellPrice);
+                resultItem.setSellCount(resultItem.getSellCount()+oneCount);
+                nextSellPrice = PriceUtil.getHighPrice(resultItem.getHighPrice());
+            }
+            result.add(resultItem);
+        }
+        return result;
+    }
 
 
 
+    /**
+     * 撤单
+     * @param code
+     * @param type
+     */
     private void removeApplyItem(String code,String type){
         var applyList = BrokerageConfig.applyDataInfos.stream().filter(a->a.getCode().equals(code)&&a.getApplyType().equals(type)).collect(Collectors.toList());
         if(applyList.size()>0){
@@ -184,17 +217,25 @@ public class DfcfAutoTransactionJob {
     }
 
 
-    private void pendingOrders(List<StockConfigDo> enableList) throws Exception {
+    /**
+     * 挂单
+     * @param enableList
+     * @throws Exception
+     */
+    private void pendingOrders(List<StockApplyConfig> enableList) throws Exception {
         var applyCodeList = new ArrayList<String>();
         for (var enableItem : enableList){
+            //先买入
             var param = new TransactionParam(){{
                 setCode(enableItem.getCode());
                 setName(enableItem.getName());
-                setCount(enableItem.getCount());
+                setCount(enableItem.getBuyCount());
                 setPrice(enableItem.getLowPrice());
             }};
             var buyCode = brokerageService.buy(param);
+            //后卖出
             param.setPrice(enableItem.getHighPrice());
+            param.setCount(enableItem.getSellCount());
             var sellCode =  brokerageService.sell(param);
             applyCodeList.add(buyCode);
             applyCodeList.add(sellCode);
@@ -234,12 +275,12 @@ public class DfcfAutoTransactionJob {
     private boolean isTransactionTime(){
         boolean result = false;
         if(LocalDate.now().getDayOfWeek().getValue()>=1&&LocalDate.now().getDayOfWeek().getValue()<=5){
-            if((LocalTime.now().isAfter(LocalTime.of(9,20,00))&&LocalTime.now().isBefore(LocalTime.of(11,30,0)))||
+            if((LocalTime.now().isAfter(LocalTime.of(9,24,00))&&LocalTime.now().isBefore(LocalTime.of(11,30,0)))||
                     (LocalTime.now().isAfter(LocalTime.of(13,00,00))&&LocalTime.now().isBefore(LocalTime.of(15,00,0)))){
                 result = true;
             }
         }
-        return result;
+        return true;
     }
 
 

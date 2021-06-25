@@ -35,7 +35,7 @@ public interface BrokerageService {
      * @param param
      * @return
      */
-    public String sell(TransactionParam param);
+    public String sell(TransactionParam param) throws Exception;
 
     /**
      * 撤单
