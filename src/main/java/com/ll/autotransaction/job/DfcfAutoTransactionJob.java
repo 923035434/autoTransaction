@@ -71,6 +71,8 @@ public class DfcfAutoTransactionJob {
                     brokerageService.revokeOrders();
                     BrokerageConfig.applyDataInfos = new ArrayList<>();
                     BrokerageConfig.windUpDate = LocalDate.now();
+                    BrokerageConfig.enableAutoTransaction=false;
+                    userService.setEnableAutoTransaction(false);
                     emailUtil.sent("撤单提示","收盘撤单成功");
                 }
             }else {
@@ -280,7 +282,7 @@ public class DfcfAutoTransactionJob {
                 result = true;
             }
         }
-        return true;
+        return result;
     }
 
 
