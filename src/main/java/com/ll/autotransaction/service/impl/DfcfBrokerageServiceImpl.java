@@ -182,7 +182,7 @@ public class DfcfBrokerageServiceImpl implements BrokerageService {
 
     @Override
     public boolean revokeOrders() {
-        var queryResult = this.getTodayOrdersData(null);
+        var queryResult = this.getTodayOrdersData("已报");
         if(queryResult.size()>0){
             for (var item :queryResult){
                 this.revokeOrders(item.getApplyCode());

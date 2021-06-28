@@ -44,6 +44,8 @@ public class DfcfAutoTransactionJob {
     @Autowired
     PriceService priceService;
 
+    @Autowired
+    ApplyService applyService;
 
     @Autowired
     EmailUtil emailUtil;
@@ -79,19 +81,7 @@ public class DfcfAutoTransactionJob {
                 //正常交易时间段
                 //判断是否需要挂单
                 if(LocalDate.now().isAfter(BrokerageConfig.pendingOrderDate)){
-                    var enableList = stockConfigService.listEnable();
-                    var enableCodeList = enableList.stream().map(e->e.getCode()).collect(Collectors.toList());
-                    //先撤单
-                    brokerageService.revokeOrdersByCode(enableCodeList);
-                    BrokerageConfig.applyDataInfos = new ArrayList<>();
-                    //挂单
-                    if(enableList.size()>0){
-                        //判断开盘是否有大涨大跌
-                        var calEnableList = this.CalPrice(enableList);
-                        this.pendingOrders(calEnableList);
-                    }
-                    emailUtil.sent("已根据配置挂单",enableList.toString());
-                    BrokerageConfig.pendingOrderDate = LocalDate.now();
+                    applyService.pendingOrders();
                 }
                 var todayDealList = brokerageService.getTodayHisDealData();
                 if(todayDealList.size()>0){
@@ -163,44 +153,13 @@ public class DfcfAutoTransactionJob {
             emailUtil.sent(String.format("%s：%s",dealItem.getName(),dealItem.getApplyType()),String.format("价格：%s",dealItem.getPrice()));
         }
         if(stockConfigList.size()>0){
-            var calEnableList = this.CalPrice(stockConfigList);
-            this.pendingOrders(calEnableList);
+            var calEnableList = applyService.CalPrice(stockConfigList);
+            applyService.pendingEnableOrders(calEnableList);
         }
 
     }
 
 
-    /**
-     * 开盘判断是否有过多高开或者过多低开的情况
-     * @param list
-     * @return
-     */
-    private List<StockApplyConfig> CalPrice(List<StockConfigDo> list){
-        var result = new ArrayList<StockApplyConfig>();
-        for (var item : list){
-            var resultItem = new StockApplyConfig();
-            BeanUtils.copyProperties(item,resultItem);
-            resultItem.setBuyCount(item.getCount());
-            resultItem.setSellCount(item.getCount());
-            var nowPrice = priceService.getLastPrice(resultItem.getCode());
-            var oneCount = item.getCount();
-            //如果比下一次买入的价格还低
-            var nextBuyPrice = PriceUtil.getLowPrice(resultItem.getLowPrice());
-            while (nowPrice.compareTo(nextBuyPrice)<=0){
-                resultItem.setLowPrice(nextBuyPrice);
-                resultItem.setBuyCount(resultItem.getBuyCount()+oneCount);
-                nextBuyPrice = PriceUtil.getLowPrice(resultItem.getLowPrice());
-            }
-            var nextSellPrice = PriceUtil.getHighPrice(resultItem.getHighPrice());
-            while (nowPrice.compareTo(nextSellPrice)>=0){
-                resultItem.setHighPrice(nextSellPrice);
-                resultItem.setSellCount(resultItem.getSellCount()+oneCount);
-                nextSellPrice = PriceUtil.getHighPrice(resultItem.getHighPrice());
-            }
-            result.add(resultItem);
-        }
-        return result;
-    }
 
 
 
@@ -218,39 +177,6 @@ public class DfcfAutoTransactionJob {
         }
     }
 
-
-    /**
-     * 挂单
-     * @param enableList
-     * @throws Exception
-     */
-    private void pendingOrders(List<StockApplyConfig> enableList) throws Exception {
-        var applyCodeList = new ArrayList<String>();
-        for (var enableItem : enableList){
-            //先买入
-            var param = new TransactionParam(){{
-                setCode(enableItem.getCode());
-                setName(enableItem.getName());
-                setCount(enableItem.getBuyCount());
-                setPrice(enableItem.getLowPrice());
-            }};
-            var buyCode = brokerageService.buy(param);
-            //后卖出
-            param.setPrice(enableItem.getHighPrice());
-            param.setCount(enableItem.getSellCount());
-            var sellCode =  brokerageService.sell(param);
-            applyCodeList.add(buyCode);
-            applyCodeList.add(sellCode);
-        }
-        var todayOrders = brokerageService.getTodayOrdersData(null);
-        for (var todayOrder:todayOrders){
-            for (var applyCode:applyCodeList) {
-             if(todayOrder.getApplyCode().equals(applyCode)){
-                 BrokerageConfig.applyDataInfos.add(todayOrder);
-             }
-            }
-        }
-    }
 
 
 

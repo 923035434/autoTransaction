@@ -4,6 +4,7 @@ import com.ll.autotransaction.controller.model.CommonResult;
 import com.ll.autotransaction.controller.model.vo.HomeResultVO;
 import com.ll.autotransaction.controller.model.vo.JobConfigVO;
 import com.ll.autotransaction.controller.security.UserPrincipal;
+import com.ll.autotransaction.service.ApplyService;
 import com.ll.autotransaction.service.BrokerageService;
 import com.ll.autotransaction.service.UserService;
 import com.ll.autotransaction.service.config.BrokerageConfig;
@@ -25,6 +26,9 @@ public class HomeController extends BaseController {
     @Autowired
     BrokerageService brokerageService;
 
+
+    @Autowired
+    ApplyService applyService;
 
     @PostMapping("/getHomeResult")
     public CommonResult<HomeResultVO> getHomeResult() {
@@ -55,6 +59,18 @@ public class HomeController extends BaseController {
     }
 
 
+    @PostMapping("/pendingOrders")
+    public CommonResult<Boolean> pendingOrders() throws Exception {
+        return CommonResult.success(applyService.pendingOrders());
+    }
+
+    @PostMapping("/removeApplyOrders")
+    public CommonResult<Boolean> removeApplyOrders(){
+        return CommonResult.success(applyService.removeApplyOrders());
+    }
+
+
+
     @PostMapping("/getCurrentJobConfig")
     public CommonResult<JobConfigVO> getCurrentJobConfig(){
         var result = new JobConfigVO(){{
@@ -68,6 +84,7 @@ public class HomeController extends BaseController {
         }};
         return CommonResult.success(result);
     }
+
 
 
 }

@@ -152,16 +152,15 @@
                 </div>
             </div>
         </div>
-        <div class="layui-col-xs12 layui-col-sm6 layui-col-md3">
+        <div class="btn-block layui-col-xs12 layui-col-sm6 layui-col-md3">
             <div class="layui-card">
                 <div class="layui-card-header">
                     操作
                 </div>
                 <div class="layui-card-body">
                     <div class="layui-btn-container">
-                        <button type="button" class="layui-btn layui-btn-primary">自动挂单</button>
-                        <button type="button" class="layui-btn layui-btn-primary">一键撤单</button>
-                        <button type="button" class="layui-btn layui-btn-primary">查看job配置</button>
+                        <button type="button" method="pendingOrders" class="layui-btn layui-btn-primary">自动挂单</button>
+                        <button type="button" method="removeApplyOrders" class="layui-btn layui-btn-primary">一键撤单</button>
                     </div>
                 </div>
             </div>
@@ -254,6 +253,59 @@
             adminIndex.openTab(tab);
         })
 
+
+        var btnBlock = null;
+        var BtnBlock = function () {
+            this.init = function () {
+                $('.btn-block button').click(function () {
+                    var btn = $(this);
+                    var methodStr = btn.attr("method");
+                    btnBlock[methodStr]();
+                })
+            }
+
+            this.pendingOrders = function () {
+                layer.confirm('是否自动挂单？', {
+                    btn: ['是','否'] //按钮
+                }, function(){
+                    layer.closeAll();
+                    var pendingOrderResult = homeService.pendingOrders();
+                    if(pendingOrderResult.success){
+                        layer.msg('挂单成功', {
+                            offset: '6px'
+                        });
+                    }else {
+                        layer.msg('挂单失败', {
+                            offset: '6px'
+                        });
+                    }
+                }, function(){
+                    layer.closeAll();
+                });
+            }
+
+            this.removeApplyOrders = function () {
+                layer.confirm('是否撤单？', {
+                    btn: ['是','否'] //按钮
+                }, function(){
+                    layer.closeAll();
+                    var rmvOrderResult = homeService.removeApplyOrders();
+                    if(rmvOrderResult.success){
+                        layer.msg('撤单成功', {
+                            offset: '6px'
+                        });
+                    }else {
+                        layer.msg('撤单失败', {
+                            offset: '6px'
+                        });
+                    }
+                }, function(){
+                    layer.closeAll();
+                });
+            }
+        }
+        btnBlock = new BtnBlock();
+        btnBlock.init();
 
         var HomeResultBlock = function () {
             this.load = function () {

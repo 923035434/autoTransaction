@@ -41,5 +41,16 @@ function HomeService() {
     }
 
 
+    //根据配置自动挂单
+    this.pendingOrders = function (param){
+        return this.ajaxNativeJsonBase("/home/pendingOrders",param) ;
+    }
+
+    //一键撤单
+    this.removeApplyOrders = function (param){
+        return this.ajaxNativeJsonBase("/home/removeApplyOrders",param) ;
+    }
+
+
 
 }
