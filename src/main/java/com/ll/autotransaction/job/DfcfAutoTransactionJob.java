@@ -189,7 +189,7 @@ public class DfcfAutoTransactionJob {
      */
     private boolean isWindUp(){
         boolean result = false;
-        if(LocalTime.now().isAfter(LocalTime.of(14,49,0))&&LocalTime.now().isBefore(LocalTime.of(15,00,0))){
+        if(LocalTime.now().isAfter(LocalTime.of(14,56,0))&&LocalTime.now().isBefore(LocalTime.of(15,00,0))){
             result = true;
         }
         return result;
